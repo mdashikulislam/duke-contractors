@@ -25,6 +25,7 @@ Route::middleware('guest')->group(function (){
 });
 Route::middleware('auth:api')->group(function (){
     Route::controller(LeadControllerController::class)->group(function (){
-       Route::post('add-lead','addLead');
+        Route::get('get-lead','getLead');
+        Route::post('add-lead','addLead');
     });
 });

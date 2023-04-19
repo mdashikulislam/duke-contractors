@@ -121,7 +121,6 @@ class SummearyController extends Controller
             SUM(IF(month = 'Nov', total, 0)) AS 'Nov',
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
 
-
         $summary['Cooking']         = $cookingMonthData;
         $summary['Dead Deal']       = $deadDealMonthData;
         $summary['Approved']        = $approvedMonthData;

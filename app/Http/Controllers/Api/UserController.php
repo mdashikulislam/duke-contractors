@@ -9,8 +9,49 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if (isNotAdmin()){
+            return response()->json([
+                'status'=>false,
+                'message'=>'You are not authorize',
+                'data'=>null
+            ]);
+        }
+        $validator = \Validator::make($request->all(),[
+            'offset'=>['nullable','numeric'],
+            'limit'=>['nullable','numeric']
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $limit = 20;
+        $offset = 0;
+        if (!empty($request->limit)){
+            $limit = $request->limit;
+        }
+        if (!empty($request->offset)){
+            $offset = $request->offset;
+        }
+        $users = User::select('id','name','email','role')->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
+        return response()->json([
+           'status'=>true,
+           'message'=>'',
+           'data'=>[
+               'users'=>$users
+           ]
+        ]);
+
 
     }
 

@@ -36,5 +36,6 @@ Route::middleware('auth:api')->group(function (){
     });
     Route::controller(UserController::class)->group(function (){
        Route::post('add-user','store');
+       Route::get('get-user','index');
     });
 });

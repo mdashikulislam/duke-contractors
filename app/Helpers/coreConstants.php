@@ -9,3 +9,4 @@ const JOB_TYPE = [
     'Flat Roofs',
     'Commercial Flat Roofs',
 ];
+const ROLE = ['Admin','Sales Representative','Sub Constructor'];

@@ -6,6 +6,7 @@ use \App\Http\Controllers\Api\AuthController;
 use \App\Http\Controllers\Api\ApiController;
 use \App\Http\Controllers\Api\LeadControllerController;
 use \App\Http\Controllers\Api\SummearyController;
+use \App\Http\Controllers\Api\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,6 +25,7 @@ Route::middleware('guest')->group(function (){
         //Route::post('register','register');
     });
 });
+
 Route::middleware('auth:api')->group(function (){
     Route::controller(LeadControllerController::class)->group(function (){
         Route::get('get-lead','getLead');
@@ -31,5 +33,8 @@ Route::middleware('auth:api')->group(function (){
     });
     Route::controller(SummearyController::class)->group(function (){
         Route::get('status-wise-summary','index');
+    });
+    Route::controller(UserController::class)->group(function (){
+       Route::post('add-user','store');
     });
 });

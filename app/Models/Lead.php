@@ -12,8 +12,7 @@ class Lead extends Model
        if (!$auth->role == 'Admin'){
            return self::whereNotNull('user_id')->where('user_id',$auth->id);
        }else{
-          return self::whereNotNull('user_id');
+           return self::whereNotNull('user_id');
        }
-
     }
 }

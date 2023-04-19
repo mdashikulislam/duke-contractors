@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\Api\AuthController;
 use \App\Http\Controllers\Api\ApiController;
 use \App\Http\Controllers\Api\LeadControllerController;
+use \App\Http\Controllers\Api\SummearyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,12 +21,15 @@ use \App\Http\Controllers\Api\LeadControllerController;
 Route::middleware('guest')->group(function (){
     Route::controller(AuthController::class)->group(function (){
         Route::post('login','login');
-        Route::post('register','register');
+        //Route::post('register','register');
     });
 });
 Route::middleware('auth:api')->group(function (){
     Route::controller(LeadControllerController::class)->group(function (){
         Route::get('get-lead','getLead');
         Route::post('add-lead','addLead');
+    });
+    Route::controller(SummearyController::class)->group(function (){
+        Route::get('status-wise-summary','index');
     });
 });

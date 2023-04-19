@@ -2,3 +2,4 @@
 function getAuthInfo(){
     return \Auth::user();
 }
+

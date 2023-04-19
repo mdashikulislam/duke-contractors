@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use Carbon\Carbon;
 
 class SummearyController extends Controller
 {
@@ -126,7 +127,42 @@ class SummearyController extends Controller
         $summary['Approved']        = $approvedMonthData;
         $summary['Sent']            = $sentMonthData;
         $summary['Not Sent']        = $notSentMonthData;
-
-        return   $summary;
+        $final = [];
+        $total = [
+            'Jan'=>0,
+            'Feb'=>0,
+            'Mar'=>0,
+            'Apr'=>0,
+            'May'=>0,
+            'Jun'=>0,
+            'Jul'=>0,
+            'Aug'=>0,
+            'Sep'=>0,
+            'Oct'=>0,
+            'Nov'=>0,
+            'Dec'=>0,
+        ];
+        foreach ($summary as $key => $sum){
+            $val = [];
+            foreach ($sum as $k => $s){
+                if ($s == null){
+                    $val[] = 0;
+                    $total[$k] = $total[$k] + 0;
+                }else{
+                    $val[] = $s;
+                    $total[$k] = $total[$k] + $s;
+                }
+            }
+            $final[$key] = $val;
+        }
+        $final['total'] = $total;
+        return   response()->json([
+            'status'=>true,
+            'message'=>'',
+            'data'=>[
+                'summery'=>$final,
+                'calculated_year'=>Carbon::now()->year
+            ]
+        ]);
     }
 }

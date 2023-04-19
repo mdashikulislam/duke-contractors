@@ -7,6 +7,7 @@ use \App\Http\Controllers\Api\ApiController;
 use \App\Http\Controllers\Api\LeadControllerController;
 use \App\Http\Controllers\Api\SummearyController;
 use \App\Http\Controllers\Api\UserController;
+use \App\Http\Controllers\Api\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -38,5 +39,8 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(UserController::class)->group(function (){
        Route::post('add-user','store');
        Route::get('get-user','index');
+    });
+    Route::controller(DashboardController::class)->group(function (){
+        Route::get('dashboard','index');
     });
 });

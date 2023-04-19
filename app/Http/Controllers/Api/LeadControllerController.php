@@ -76,6 +76,8 @@ class LeadControllerController extends Controller
         $lead->job_type = $request->job_type;
         $lead->email = $request->email;
         $lead->additional_comments = $request->additional_comments;
+        $lead->price_of_quote = 0;
+        $lead->status = 'Not Sent';
         $lead->save();
         return response()->json([
            'status'=>true,

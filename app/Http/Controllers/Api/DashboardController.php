@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -13,6 +14,7 @@ class DashboardController extends Controller
         $approvedLead = Lead::myRole()->where('status','Approved')->count();
         $deadDeal = Lead::myRole()->where('status','Dead Deal')->count();
         $totalSales = Lead::myRole()->whereNotNull('price_of_quote')->sum('price_of_quote');
+
         return response()->json([
             'status'=>true,
             'message'=>'',
@@ -21,6 +23,36 @@ class DashboardController extends Controller
                 'approvedLead'=>$approvedLead,
                 'deadDeal'=>$deadDeal,
                 'totalSales'=>$totalSales
+            ]
+        ]);
+    }
+
+    public function jobTypePieChart()
+    {
+        $typeQuery = Lead::myRole()->selectRaw(" job_type,COUNT(id) AS total")
+            ->whereNotNull('price_of_quote')
+            ->groupBy('job_type');
+        $typeResult = DB::table($typeQuery);
+                $select = "";
+                foreach (JOB_TYPE as $key => $type){
+                    $select .="SUM(IF(job_type = '$type', total, 0)) AS '$type'";
+                    if ($key < count(JOB_TYPE) - 1 ){
+                        $select .=",";
+                    }
+                }
+        $typeResult =  $typeResult->selectRaw($select)->first();
+        $total = array_sum((array)$typeResult);
+        $finalResult = [];
+        foreach ($typeResult as $key => $result){
+            $finalResult[$key] = (intval($result) / $total) * 100;
+        }
+        return response()->json([
+            'status'=>true,
+            'message'=>'',
+            'data'=>[
+                'pie'=>$finalResult,
+                'total'=>$total,
+                'mode'=>'%'
             ]
         ]);
     }

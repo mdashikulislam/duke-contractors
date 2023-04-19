@@ -7,6 +7,7 @@ const JOB_TYPE = [
     'Shingle & Flat to Shingle Roofs',
     'Metal Roofs',
     'Flat Roofs',
+    'Flat Roofs with ISO',
     'Commercial Flat Roofs',
 ];
 const ROLE = ['Admin','Sales Representative','Sub Constructor'];

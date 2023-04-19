@@ -13,7 +13,7 @@ class SummearyController extends Controller
         $summary = [];
         //Cooking
         $cookingMonthQuery = Lead::myRole()->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,
-            SUM(price_of_quote) AS total")
+            COUNT(id) AS total")
             ->where('status', 'Cooking')
             ->whereNotNull('price_of_quote')
             ->groupByRaw('YEAR(created_at)')
@@ -35,7 +35,7 @@ class SummearyController extends Controller
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
         //Dead deal
         $deadDealMonthQuery = Lead::myRole()
-            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,SUM(price_of_quote) AS total")
+            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,COUNT(id) AS total")
             ->where('status', 'Dead Deal')
             ->whereNotNull('price_of_quote')
             ->groupByRaw('YEAR(created_at)')
@@ -57,7 +57,7 @@ class SummearyController extends Controller
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
 
         $approvedMonthQuery = Lead::myRole()
-            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,SUM(price_of_quote) AS total")
+            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,COUNT(id) AS total")
             ->where('status', 'Approved')
             ->whereNotNull('price_of_quote')
             ->groupByRaw('YEAR(created_at)')
@@ -79,7 +79,7 @@ class SummearyController extends Controller
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
 
         $sentMonthQuery = Lead::myRole()
-            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,SUM(price_of_quote) AS total")
+            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,COUNT(id) AS total")
             ->where('status', 'Sent')
             ->whereNotNull('price_of_quote')
             ->groupByRaw('YEAR(created_at)')
@@ -101,7 +101,7 @@ class SummearyController extends Controller
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
 
         $notSentMonthQuery = Lead::myRole()
-            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,SUM(price_of_quote) AS total")
+            ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,COUNT(id) AS total")
             ->where('status', 'Not Sent')
             ->whereNotNull('price_of_quote')
             ->groupByRaw('YEAR(created_at)')
@@ -142,19 +142,26 @@ class SummearyController extends Controller
             'Nov'=>0,
             'Dec'=>0,
         ];
+        $totalYtd = 0;
         foreach ($summary as $key => $sum){
             $val = [];
+            $ytd = 0;
             foreach ($sum as $k => $s){
+                $s = intval($s);
                 if ($s == null){
                     $val[] = 0;
                     $total[$k] = $total[$k] + 0;
                 }else{
                     $val[] = $s;
                     $total[$k] = $total[$k] + $s;
+                    $ytd += $s;
+                    $totalYtd += $s;
                 }
             }
+            $val['ytd']= $ytd;
             $final[$key] = $val;
         }
+        $total['ytd'] = $totalYtd;
         $final['total'] = $total;
         return   response()->json([
             'status'=>true,

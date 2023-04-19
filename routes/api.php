@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function (){
     });
     Route::controller(SummearyController::class)->group(function (){
         Route::get('status-wise-summary','index');
+        Route::get('job-type-sales-summary','jobTypeSalesSummary');
     });
     Route::controller(UserController::class)->group(function (){
        Route::post('add-user','store');

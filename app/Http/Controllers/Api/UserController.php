@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -49,7 +50,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-
         $validator = \Validator::make($request->all(),[
             'name'=>['required','max:255','string'],
             'email'=>['required','email','string','max:255','unique:users'],
@@ -82,5 +82,56 @@ class UserController extends Controller
             'message'=>'User create successful',
             'data'=>null
         ]);
+    }
+
+    public function edit(Request $request)
+    {
+        $rules = [
+            'id'=>['required','numeric'],
+            'name'=>['nullable','max:255','string'],
+            'email'=>['nullable','email','string','max:255',Rule::unique('users')->ignore($request->id)],
+            'password'=>['nullable', 'string', 'min:8'],
+        ];
+        if (isAdmin()){
+            $rules['role'] = ['nullable','in:'.implode(',',ROLE)];
+        }
+        $validator = \Validator::make($request->all(),$rules);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+       $request->except('id');
+        if (!isAdmin()){
+            $request->except('role');
+        }
+        if ($request->password){
+            $request['password'] = Hash::make($request->password);
+        }
+       $user = User::where('id',$request->id)->first();
+       $user->fill($request->except('id'));
+       if ($user->save()){
+           $response = [
+               'status' => true,
+               'message' => 'User update successfully',
+               'data' => null
+           ];
+       }else{
+           $response = [
+               'status' => false,
+               'message' => 'Something wrong',
+               'data' => null
+           ];
+       }
+       return response()->json($response);
+
     }
 }

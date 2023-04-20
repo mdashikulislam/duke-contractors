@@ -9,3 +9,10 @@ function isNotAdmin(){
     }
     return true;
 }
+function isAdmin(){
+    $user = getAuthInfo();
+    if ($user->role == 'Admin'){
+        return true;
+    }
+    return false;
+}

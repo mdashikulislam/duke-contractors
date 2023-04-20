@@ -37,9 +37,12 @@ Route::middleware('auth:api')->group(function (){
         Route::get('status-wise-summary','index');
         Route::get('job-type-sales-summary','jobTypeSalesSummary');
     });
-    Route::middleware('is_admin')->controller(UserController::class)->group(function (){
-       Route::post('add-user','store');
-       Route::get('get-user','index');
+    Route::controller(UserController::class)->group(function (){
+        Route::middleware('is_admin')->group(function (){
+            Route::post('add-user','store');
+            Route::get('get-user','index');
+        });
+       Route::post('edit-user','edit');
     });
     Route::controller(DashboardController::class)->group(function (){
         Route::get('dashboard','index');

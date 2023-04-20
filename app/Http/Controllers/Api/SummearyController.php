@@ -59,7 +59,7 @@ class SummearyController extends Controller
             $ytd = 0;
             foreach ($sum as $k => $s){
                 $s = @$s ? intval($s) : 0;
-                $val[] = $s;
+                $val[$k] = $s;
                 $total[$k] = $total[$k] + $s;
                 $ytd += $s;
                 $totalYtd += $s;
@@ -124,11 +124,12 @@ class SummearyController extends Controller
         ];
         $totalYtd = 0;
         foreach ($summary as $key => $sum){
+
             $val = [];
             $ytd = 0;
             foreach ($sum as $k => $s){
                 $s = @$s ? intval($s) : 0;
-                $val[] = $s;
+                $val[$k] = $s;
                 $total[$k] = $total[$k] + $s;
                 $ytd += $s;
                 $totalYtd += $s;

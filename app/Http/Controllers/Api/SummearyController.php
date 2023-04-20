@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\JobType;
 use App\Models\Lead;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -81,10 +82,11 @@ class SummearyController extends Controller
     public function jobTypeSalesSummary()
     {
         $summary = [];
-        foreach (JOB_TYPE as $type){
+        $jobTypes = JobType::all();
+        foreach ($jobTypes as $type){
             $monthQuery = Lead::myRole()->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,
             SUM(price_of_quote) AS total")
-                ->where('job_type', $type)
+                ->where('job_type', $type->id)
                 ->whereNotNull('price_of_quote')
                 ->groupByRaw('YEAR(created_at)')
                 ->groupByRaw('MONTH(created_at)')
@@ -103,7 +105,7 @@ class SummearyController extends Controller
             SUM(IF(month = 'Oct', total, 0)) AS 'Oct',
             SUM(IF(month = 'Nov', total, 0)) AS 'Nov',
             SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
-            $summary[$type] = $monthData;
+            $summary[$type->name] = $monthData;
         }
         $final = [];
         $total = [

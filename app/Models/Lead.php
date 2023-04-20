@@ -17,4 +17,9 @@ class Lead extends Model
            return self::whereNotNull('user_id');
        }
     }
+
+    public function jobTypes()
+    {
+        return $this->hasOne(JobType::class,'id','job_type');
+    }
 }

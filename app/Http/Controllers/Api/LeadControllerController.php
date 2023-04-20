@@ -35,7 +35,7 @@ class LeadControllerController extends Controller
         if (!empty($request->offset)){
             $offset = $request->offset;
         }
-        $leads = Lead::orderByDesc('created_at')->skip($offset)->limit($limit)->get();
+        $leads = Lead::with('jobTypes')->whereHas('jobTypes')->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
         return response()->json([
             'status'=>true,
             'message'=>'',
@@ -53,7 +53,7 @@ class LeadControllerController extends Controller
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','max:191'],
+            'job_type'=>['required','numeric','exists:\App\Models\JobType,id'],
         ]);
         if ($validator->fails()){
             $errors = "";

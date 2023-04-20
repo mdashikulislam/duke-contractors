@@ -11,13 +11,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if (isNotAdmin()){
-            return response()->json([
-                'status'=>false,
-                'message'=>'You are not authorize',
-                'data'=>null
-            ]);
-        }
+
         $validator = \Validator::make($request->all(),[
             'offset'=>['nullable','numeric'],
             'limit'=>['nullable','numeric']
@@ -55,13 +49,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        if (isNotAdmin()){
-            return response()->json([
-                'status'=>false,
-                'message'=>'You are not authorize',
-                'data'=>null
-            ]);
-        }
+
         $validator = \Validator::make($request->all(),[
             'name'=>['required','max:255','string'],
             'email'=>['required','email','string','max:255','unique:users'],

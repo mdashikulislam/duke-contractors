@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\JobType;
 use App\Models\Lead;
 use Illuminate\Support\Facades\DB;
 
@@ -33,11 +34,12 @@ class DashboardController extends Controller
         $typeQuery = Lead::myRole()->selectRaw(" job_type,COUNT(id) AS total")
             ->whereNotNull('price_of_quote')
             ->groupBy('job_type');
+        $jobTypes = JobType::all();
         $typeResult = DB::table($typeQuery);
                 $select = "";
-                foreach (JOB_TYPE as $key => $type){
-                    $select .="SUM(IF(job_type = '$type', total, 0)) AS '$type'";
-                    if ($key < count(JOB_TYPE) - 1 ){
+                foreach ($jobTypes as $key => $type){
+                    $select .="SUM(IF(job_type = '$type->id', total, 0)) AS '$type->name'";
+                    if ($key < count($jobTypes) - 1 ){
                         $select .=",";
                     }
                 }
@@ -53,7 +55,7 @@ class DashboardController extends Controller
             'data'=>[
                 'pie'=>$finalResult,
                 'total'=>$total,
-                'mode'=>'%'
+                'symbol'=>'%'
             ]
         ]);
     }

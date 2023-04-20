@@ -29,6 +29,7 @@ class DashboardController extends Controller
 
     public function jobTypePieChart()
     {
+
         $typeQuery = Lead::myRole()->selectRaw(" job_type,COUNT(id) AS total")
             ->whereNotNull('price_of_quote')
             ->groupBy('job_type');
@@ -44,7 +45,7 @@ class DashboardController extends Controller
         $total = array_sum((array)$typeResult);
         $finalResult = [];
         foreach ($typeResult as $key => $result){
-            $finalResult[$key] = (intval($result) / $total) * 100;
+            $finalResult[$key] = number_format((intval($result) / $total) * 100,2);
         }
         return response()->json([
             'status'=>true,

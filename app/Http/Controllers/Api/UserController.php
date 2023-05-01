@@ -91,10 +91,8 @@ class UserController extends Controller
             'name'=>['nullable','max:255','string'],
             'email'=>['nullable','email','string','max:255',Rule::unique('users')->ignore($request->id)],
             'password'=>['nullable', 'string', 'min:8'],
+            'role'=>['nullable', 'string', 'in:'.implode(',',ROLE)],
         ];
-        if (isAdmin()){
-            $rules['role'] = ['nullable','in:'.implode(',',ROLE)];
-        }
         $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";
@@ -110,9 +108,6 @@ class UserController extends Controller
             return response()->json($response);
         }
        $request->except('id');
-        if (!isAdmin()){
-            $request->except('role');
-        }
         if ($request->password){
             $request['password'] = Hash::make($request->password);
         }

@@ -53,6 +53,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'email_verified_at' => $user->email_verified_at,
+                    'role'=>$user->role
                 ],
             ];
             $response = [
@@ -115,6 +116,7 @@ class AuthController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'email_verified_at' => $user->email_verified_at,
+                        'role'=>$user->role
                     ]
                 ]
             ];
@@ -126,5 +128,24 @@ class AuthController extends Controller
                 'data' => null
             ];
         }
+    }
+
+    public function getCurrentUserInfo()
+    {
+        $user = Auth::guard('api')->user();
+        $response = [
+            'status' => true,
+            'message' => __("Successfully signed in"),
+            'data' => [
+                'user_data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'email_verified_at' => $user->email_verified_at,
+                    'role'=>$user->role
+                ]
+            ]
+        ];
+        return response()->json($response);
     }
 }

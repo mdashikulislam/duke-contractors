@@ -29,6 +29,9 @@ Route::middleware('guest')->group(function (){
 });
 
 Route::middleware('auth:api')->group(function (){
+    Route::controller(AuthController::class)->group(function (){
+        Route::get('get-current-user-info','getCurrentUserInfo');
+    });
     Route::controller(LeadControllerController::class)->group(function (){
         Route::get('get-lead','getLead');
         Route::post('add-lead','addLead');

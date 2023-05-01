@@ -45,9 +45,15 @@ class DashboardController extends Controller
                 }
         $typeResult =  $typeResult->selectRaw($select)->first();
         $total = array_sum((array)$typeResult);
+
         $finalResult = [];
         foreach ($typeResult as $key => $result){
-            $finalResult[$key] = number_format((intval($result) / $total) * 100,2);
+            if (is_null($result) || $result == 0){
+                $finalResult[$key] = 0;
+            }else{
+                $finalResult[$key] = number_format((intval($result) / $total) * 100,2);
+            }
+
         }
         return response()->json([
             'status'=>true,

@@ -153,14 +153,15 @@ class UserController extends Controller
             ];
             return response()->json($response);
         }
-        $except = ['id'];
-        if (!isAdmin()){
-            $except[] = 'email';
+        if ($request->name){
+            $user->name = $request->name;
+        }
+        if (isAdmin() && $request->email){
+            $user->email = $request->email;
         }
         if ($request->password){
-            $request['password'] = Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
-        $user->fill($request->except($except));
         if ($user->save()){
             $response = [
                 'status' => true,

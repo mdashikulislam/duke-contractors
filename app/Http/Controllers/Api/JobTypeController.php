@@ -12,7 +12,7 @@ class JobTypeController extends Controller
     {
         $types = JobType::all();
         return response()->json([
-            'status' => false,
+            'status' => true,
             'message' => '',
             'data' => [
                 'types'=>$types
@@ -42,7 +42,7 @@ class JobTypeController extends Controller
         $type->name = $request->name;
         if ($type->save()){
             $response = [
-                'status' => false,
+                'status' => true,
                 'message' => 'Job type create successful',
                 'data' => null
             ];
@@ -79,7 +79,7 @@ class JobTypeController extends Controller
         $type->name = $request->name;
         if ($type->save()){
             $response = [
-                'status' => false,
+                'status' => true,
                 'message' => 'Job type update successful',
                 'data' => null
             ];

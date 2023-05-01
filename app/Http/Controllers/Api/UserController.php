@@ -127,6 +127,61 @@ class UserController extends Controller
            ];
        }
        return response()->json($response);
+    }
 
+    public function profileUpdate(Request $request)
+    {
+        $user = \Auth::guard('api')->user();
+        $rules = [
+            'name'=>['nullable','max:255','string'],
+            'password'=>['nullable', 'string', 'min:8'],
+        ];
+        if (isAdmin()){
+            $rules['email'] = ['nullable','email','string','max:255',Rule::unique('users')->ignore($user->id)];
+        }
+        $validator = \Validator::make($request->all(),$rules);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $except = ['id'];
+        if (!isAdmin()){
+            $except[] = 'email';
+        }
+        if ($request->password){
+            $request['password'] = Hash::make($request->password);
+        }
+        $user->fill($request->except($except));
+        if ($user->save()){
+            $response = [
+                'status' => true,
+                'message' => 'Profile update successfully',
+                'data' => [
+                    'user_data' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'email_verified_at' => $user->email_verified_at,
+                        'role'=>$user->role
+                    ]
+                ]
+            ];
+        }else{
+            $response = [
+                'status' => false,
+                'message' => 'Something wrong',
+                'data' => null
+            ];
+        }
+        return response()->json($response);
     }
 }

@@ -46,6 +46,7 @@ Route::middleware('auth:api')->group(function (){
             Route::get('get-user','index');
             Route::post('edit-user','edit');
         });
+        Route::post('profile-update','profileUpdate');
     });
     Route::controller(DashboardController::class)->group(function (){
         Route::get('dashboard','index');

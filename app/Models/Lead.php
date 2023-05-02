@@ -20,6 +20,6 @@ class Lead extends Model
 
     public function jobTypes()
     {
-        return $this->hasOne(JobType::class,'id','job_type');
+        return $this->belongsToMany(JobType::class,'lead_job_types');
     }
 }

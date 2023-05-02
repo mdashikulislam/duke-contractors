@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->integer('job_type')->default(0);
             $table->string('additional_comments')->nullable();
             $table->string('price_of_quote')->nullable();
             $table->string('status')->nullable();

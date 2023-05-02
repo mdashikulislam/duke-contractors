@@ -53,7 +53,8 @@ class LeadControllerController extends Controller
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','numeric','exists:\App\Models\JobType,id'],
+            'job_type'=>['required','array'],
+            'job_type.*'=>['integer']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -68,21 +69,22 @@ class LeadControllerController extends Controller
             ];
             return response()->json($response);
         }
+
         $lead = new Lead();
         $lead->user_id = getAuthInfo()->id;
         $lead->client_name = $request->client_name;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
-        $lead->job_type = $request->job_type;
         $lead->email = $request->email;
         $lead->additional_comments = $request->additional_comments;
         $lead->price_of_quote = 0;
         $lead->status = 'Not Sent';
         $lead->save();
+        $lead->jobTypes()->sync($request->job_type ?? []);
         return response()->json([
            'status'=>true,
            'message'=>'Lead added successful',
-           'data'=>null,
+           'data'=>null
         ]);
     }
 
@@ -102,7 +104,8 @@ class LeadControllerController extends Controller
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','numeric','exists:\App\Models\JobType,id'],
+            'job_type'=>['required','array'],
+            'job_type.*'=>['integer'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -117,14 +120,13 @@ class LeadControllerController extends Controller
             ];
             return response()->json($response);
         }
-
         $lead->client_name = $request->client_name;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
-        $lead->job_type = $request->job_type;
         $lead->email = $request->email;
         $lead->additional_comments = $request->additional_comments;
         if ($lead->save()){
+            $lead->jobTypes()->sync($request->job_type ?? []);
             return  response()->json([
                 'status'=>true,
                 'message'=>'Lead update successfully',
@@ -141,7 +143,7 @@ class LeadControllerController extends Controller
     }
     public function leadDetails($id)
     {
-        $lead = Lead::myRole()->where('id',$id)->first();
+        $lead = Lead::myRole()->with('jobTypes')->where('id',$id)->first();
         if (!empty($lead)){
             $response = [
                 'status'=>true,

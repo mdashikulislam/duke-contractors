@@ -44,7 +44,9 @@ class JobTypeController extends Controller
             $response = [
                 'status' => true,
                 'message' => 'Job type create successful',
-                'data' => null
+                'data' => [
+                    'type'=>$type
+                ]
             ];
         }else{
             $response = [
@@ -81,7 +83,9 @@ class JobTypeController extends Controller
             $response = [
                 'status' => true,
                 'message' => 'Job type update successful',
-                'data' => null
+                'data' => [
+                    'type'=>$type
+                ]
             ];
         }else{
             $response = [

@@ -23,35 +23,35 @@ class SummearyController extends Controller
                 ->orderByRaw('YEAR(created_at)')
                 ->orderByRaw('MONTH(created_at)');
             $monthData =  DB::table($monthQuery)
-                ->selectRaw("SUM(IF(month = 'Jan', total, 0)) AS 'Jan',
-            SUM(IF(month = 'Feb', total, 0)) AS 'Feb',
-            SUM(IF(month = 'Mar', total, 0)) AS 'Mar',
-            SUM(IF(month = 'Apr', total, 0)) AS 'Apr',
+                ->selectRaw("SUM(IF(month = 'Jan', total, 0)) AS 'January',
+            SUM(IF(month = 'Feb', total, 0)) AS 'February',
+            SUM(IF(month = 'Mar', total, 0)) AS 'March',
+            SUM(IF(month = 'Apr', total, 0)) AS 'April',
             SUM(IF(month = 'May', total, 0)) AS 'May',
-            SUM(IF(month = 'Jun', total, 0)) AS 'Jun',
-            SUM(IF(month = 'Jul', total, 0)) AS 'Jul',
-            SUM(IF(month = 'Aug', total, 0)) AS 'Aug',
-            SUM(IF(month = 'Sep', total, 0)) AS 'Sep',
-            SUM(IF(month = 'Oct', total, 0)) AS 'Oct',
-            SUM(IF(month = 'Nov', total, 0)) AS 'Nov',
-            SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
+            SUM(IF(month = 'Jun', total, 0)) AS 'June',
+            SUM(IF(month = 'Jul', total, 0)) AS 'July',
+            SUM(IF(month = 'Aug', total, 0)) AS 'August',
+            SUM(IF(month = 'Sep', total, 0)) AS 'September',
+            SUM(IF(month = 'Oct', total, 0)) AS 'October',
+            SUM(IF(month = 'Nov', total, 0)) AS 'November',
+            SUM(IF(month = 'Dec', total, 0)) AS 'December'")->first();
             $summary[$status] = $monthData;
         }
 
         $final = [];
         $total = [
-            'Jan'=>0,
-            'Feb'=>0,
-            'Mar'=>0,
-            'Apr'=>0,
+            'January'=>0,
+            'February'=>0,
+            'March'=>0,
+            'April'=>0,
             'May'=>0,
-            'Jun'=>0,
-            'Jul'=>0,
-            'Aug'=>0,
-            'Sep'=>0,
-            'Oct'=>0,
-            'Nov'=>0,
-            'Dec'=>0,
+            'June'=>0,
+            'July'=>0,
+            'August'=>0,
+            'September'=>0,
+            'October'=>0,
+            'November'=>0,
+            'December'=>0,
         ];
         $totalYtd = 0;
         foreach ($summary as $key => $sum){
@@ -98,38 +98,37 @@ class SummearyController extends Controller
                 ->orderByRaw('MONTH(created_at)');
 
             $monthData =  DB::table($monthQuery)
-                ->selectRaw("SUM(IF(month = 'Jan', total, 0)) AS 'Jan',
-            SUM(IF(month = 'Feb', total, 0)) AS 'Feb',
-            SUM(IF(month = 'Mar', total, 0)) AS 'Mar',
-            SUM(IF(month = 'Apr', total, 0)) AS 'Apr',
+                ->selectRaw("SUM(IF(month = 'Jan', total, 0)) AS 'January',
+            SUM(IF(month = 'Feb', total, 0)) AS 'February',
+            SUM(IF(month = 'Mar', total, 0)) AS 'March',
+            SUM(IF(month = 'Apr', total, 0)) AS 'April',
             SUM(IF(month = 'May', total, 0)) AS 'May',
-            SUM(IF(month = 'Jun', total, 0)) AS 'Jun',
-            SUM(IF(month = 'Jul', total, 0)) AS 'Jul',
-            SUM(IF(month = 'Aug', total, 0)) AS 'Aug',
-            SUM(IF(month = 'Sep', total, 0)) AS 'Sep',
-            SUM(IF(month = 'Oct', total, 0)) AS 'Oct',
-            SUM(IF(month = 'Nov', total, 0)) AS 'Nov',
-            SUM(IF(month = 'Dec', total, 0)) AS 'Dec'")->first();
+            SUM(IF(month = 'Jun', total, 0)) AS 'June',
+            SUM(IF(month = 'Jul', total, 0)) AS 'July',
+            SUM(IF(month = 'Aug', total, 0)) AS 'August',
+            SUM(IF(month = 'Sep', total, 0)) AS 'September',
+            SUM(IF(month = 'Oct', total, 0)) AS 'October',
+            SUM(IF(month = 'Nov', total, 0)) AS 'November',
+            SUM(IF(month = 'Dec', total, 0)) AS 'December'")->first();
             $summary[$type->name] = $monthData;
         }
         $final = [];
         $total = [
-            'Jan'=>0,
-            'Feb'=>0,
-            'Mar'=>0,
-            'Apr'=>0,
+            'January'=>0,
+            'February'=>0,
+            'March'=>0,
+            'April'=>0,
             'May'=>0,
-            'Jun'=>0,
-            'Jul'=>0,
-            'Aug'=>0,
-            'Sep'=>0,
-            'Oct'=>0,
-            'Nov'=>0,
-            'Dec'=>0,
+            'June'=>0,
+            'July'=>0,
+            'August'=>0,
+            'September'=>0,
+            'October'=>0,
+            'November'=>0,
+            'December'=>0,
         ];
         $totalYtd = 0;
         foreach ($summary as $key => $sum){
-
             $val = [];
             $ytd = 0;
             foreach ($sum as $k => $s){

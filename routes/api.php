@@ -53,6 +53,7 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(DashboardController::class)->group(function (){
         Route::get('dashboard','index');
         Route::get('job-type-pie-chart','jobTypePieChart');
+        Route::get('sales-bar-chart','salesBarChart');
     });
     Route::controller(JobTypeController::class)->group(function (){
         Route::get('get-job-type','index');

@@ -11,10 +11,10 @@ class Lead extends Model
     public static function myRole()
     {
        $auth = getAuthInfo();
-       if (!$auth->role == 'Admin'){
-           return self::whereNotNull('user_id')->where('user_id',$auth->id);
+       if ($auth->role != 'Admin'){
+           return self::where('leads.user_id',$auth->id)->whereNotNull('leads.user_id');
        }else{
-           return self::whereNotNull('user_id');
+           return self::whereNotNull('leads.user_id');
        }
     }
 

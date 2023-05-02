@@ -107,7 +107,6 @@ class UserController extends Controller
             ];
             return response()->json($response);
         }
-       $request->except('id');
         if ($request->password){
             $request['password'] = Hash::make($request->password);
         }

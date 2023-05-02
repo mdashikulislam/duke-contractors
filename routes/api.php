@@ -35,6 +35,8 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(LeadControllerController::class)->group(function (){
         Route::get('get-lead','getLead');
         Route::post('add-lead','addLead');
+        Route::post('edit-lead/{id}','editLead');
+        Route::get('lead-details/{id}','leadDetails');
     });
     Route::controller(SummearyController::class)->group(function (){
         Route::get('status-wise-summary','index');

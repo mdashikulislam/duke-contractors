@@ -6,8 +6,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "doctrine/dbal": "^3.6",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
+        "laravel/passport": "^11.8",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7"
     },
@@ -25,7 +27,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": ["app/Helpers/coreConstants.php","app/Helpers/helper.php"]
     },
     "autoload-dev": {
         "psr-4": {

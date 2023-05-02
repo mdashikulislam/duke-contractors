@@ -31,9 +31,11 @@ class DashboardController extends Controller
     public function jobTypePieChart()
     {
 
-        $typeQuery = Lead::myRole()->selectRaw(" job_type,COUNT(id) AS total")
-            ->whereNotNull('price_of_quote')
-            ->groupBy('job_type');
+        $typeQuery = Lead::myRole()->selectRaw("job_types.id as job_type, COUNT(leads.id) AS total")
+            ->join('lead_job_types','lead_job_types.lead_id','=','leads.id')
+            ->join('job_types','job_types.id','=','lead_job_types.job_type_id')
+            ->whereNotNull('leads.price_of_quote')
+            ->groupBy('job_types.id');
         $jobTypes = JobType::all();
         $typeResult = DB::table($typeQuery);
                 $select = "";

@@ -84,9 +84,7 @@ class SummearyController extends Controller
         $summary = [];
         $jobTypes = JobType::all();
         foreach ($jobTypes as $type){
-            $monthQuery = Lead::myRole()->with(['jobTypes'=>function($s) use($type){
-                $s->where('job_type_id',$type->id);
-            }])
+            $monthQuery = Lead::myRole()
                 ->whereHas('jobTypes',function ($s) use ($type){
                     $s->where('job_type_id',$type->id);
                 })

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\JobType;
 use App\Models\Lead;
 use Illuminate\Http\Request;
 
@@ -143,6 +144,11 @@ class LeadControllerController extends Controller
     }
     public function leadDetails($id)
     {
+//       Lead::factory(100)->create()->each(function ($q){
+//            $number = JobType::inRandomOrder()->limit(rand(1,JobType::count()))->get()->pluck('id');
+//            $q->jobTypes()->sync($number);
+//        });
+
         $lead = Lead::myRole()->with('jobTypes')->where('id',$id)->first();
         if (!empty($lead)){
             $response = [

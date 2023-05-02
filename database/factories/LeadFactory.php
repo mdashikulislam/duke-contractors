@@ -13,7 +13,6 @@ class LeadFactory extends Factory
 
     public function definition(): array
     {
-        $jobType = JobType::inRandomOrder()->first();
         $status = LEAD_STATUE;
         shuffle($status);
         return [
@@ -22,7 +21,6 @@ class LeadFactory extends Factory
             'address' => $this->faker->address(),
             'phone' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
-            'job_type' => $jobType->id,
             'additional_comments' => $this->faker->word(),
             'price_of_quote' => $this->faker->numberBetween(1111,9999),
             'status' => $status[0],

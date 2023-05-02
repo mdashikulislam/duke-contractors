@@ -84,14 +84,21 @@ class SummearyController extends Controller
         $summary = [];
         $jobTypes = JobType::all();
         foreach ($jobTypes as $type){
-            $monthQuery = Lead::myRole()->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,
+            $monthQuery = Lead::myRole()->with(['jobTypes'=>function($s) use($type){
+                $s->where('job_type_id',$type->id);
+            }])
+                ->whereHas('jobTypes',function ($s) use ($type){
+                    $s->where('job_type_id',$type->id);
+                })
+                ->selectRaw("MIN(DATE_FORMAT(created_at, '%b')) AS month,
             SUM(price_of_quote) AS total")
-                ->where('job_type', $type->id)
+                //->where('job_type', $type->id)
                 ->whereNotNull('price_of_quote')
                 ->groupByRaw('YEAR(created_at)')
                 ->groupByRaw('MONTH(created_at)')
                 ->orderByRaw('YEAR(created_at)')
                 ->orderByRaw('MONTH(created_at)');
+
             $monthData =  DB::table($monthQuery)
                 ->selectRaw("SUM(IF(month = 'Jan', total, 0)) AS 'Jan',
             SUM(IF(month = 'Feb', total, 0)) AS 'Feb',

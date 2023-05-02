@@ -9,8 +9,10 @@ return new class extends Migration {
     {
         Schema::create('lead_job_types', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('lead_id')->default(0);
-            $table->bigInteger('job_type_id')->default(0);
+            $table->unsignedBigInteger('lead_id');
+            $table->unsignedBigInteger('job_type_id');
+            $table->foreign('lead_id')->references('id')->on('leads')->onDelete('cascade');
+            $table->foreign('job_type_id')->references('id')->on('job_types')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -72,7 +72,11 @@ class LeadControllerController extends Controller
         $jobType = [];
         foreach ($request->job_type as $type){
             if (gettype($type) == 'integer'){
-                $jobType[] = $type;
+                $exist = JobType::where('id',$type)->first();
+                if (empty($exist)){
+                    continue;
+                }
+                $jobType[] = $exist->id;
             }elseif (gettype($type) == 'string'){
                 $create = JobType::firstOrCreate(['name' => $type]);
                 $jobType[] = $create->id;
@@ -114,8 +118,7 @@ class LeadControllerController extends Controller
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','array'],
-            'job_type.*'=>['integer'],
+            'job_type'=>['required','array']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -136,7 +139,22 @@ class LeadControllerController extends Controller
         $lead->email = $request->email;
         $lead->additional_comments = $request->additional_comments;
         if ($lead->save()){
-            $lead->jobTypes()->sync($request->job_type ?? []);
+            $jobType = [];
+            foreach ($request->job_type as $type){
+                if (gettype($type) == 'integer'){
+                    $exist = JobType::where('id',$type)->first();
+                    if (empty($exist)){
+                        continue;
+                    }
+                    $jobType[] = $exist->id;
+                }elseif (gettype($type) == 'string'){
+                    $create = JobType::firstOrCreate(['name' => $type]);
+                    $jobType[] = $create->id;
+                }else{
+                    continue;
+                }
+            }
+            $lead->jobTypes()->sync($jobType);
             return  response()->json([
                 'status'=>true,
                 'message'=>'Lead update successfully',

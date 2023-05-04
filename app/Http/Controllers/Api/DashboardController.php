@@ -91,6 +91,18 @@ class DashboardController extends Controller
             SUM(IF(month = 'Oct', total, 0)) AS 'October',
             SUM(IF(month = 'Nov', total, 0)) AS 'November',
             SUM(IF(month = 'Dec', total, 0)) AS 'December'")->first();
-        return $monthData;
+
+        $data = [];
+        foreach ($monthData as $key=> $dt){
+            $dt = @$dt ? intval($dt) : 0;
+            $data[$key] = $dt;
+        }
+        return response()->json([
+           'status'=>true,
+           'message'=>'',
+           'data'=>[
+               'chart'=>$data
+           ]
+        ]);
     }
 }

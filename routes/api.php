@@ -9,6 +9,7 @@ use \App\Http\Controllers\Api\SummearyController;
 use \App\Http\Controllers\Api\UserController;
 use \App\Http\Controllers\Api\DashboardController;
 use \App\Http\Controllers\Api\JobTypeController;
+use \App\Http\Controllers\Api\CompanyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,5 +60,10 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-job-type','index');
         Route::post('add-job-type','store');
         Route::post('edit-job-type','edit');
+    });
+    Route::controller(CompanyController::class)->group(function (){
+        Route::middleware('is_admin')->group(function (){
+           Route::post('add-company','store');
+        });
     });
 });

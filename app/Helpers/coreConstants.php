@@ -11,3 +11,4 @@ const JOB_TYPE = [
     'Commercial Flat Roofs',
 ];
 const ROLE = ['Admin','Sales Representative','Sub Constructor'];
+const PRODUCT_CATEGORY = ['SLOPED ROOF - MATERIALS','Labor','Trash','Permit'];

@@ -27,7 +27,8 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string','unique:products,name']
+            'name'=>['required','max:255','string','unique:products,name'],
+            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)]
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -44,6 +45,7 @@ class ProductController extends Controller
         }
         $product = new Product();
         $product->name = $request->name;
+        $product->category = $request->category;
         if ($product->save()){
             $response = [
                 'status' => true,
@@ -65,7 +67,8 @@ class ProductController extends Controller
     public function edit($id,Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('products')->ignore('id')]
+            'name'=>['required','max:255','string',Rule::unique('products')->ignore('id')],
+            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)]
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -89,6 +92,7 @@ class ProductController extends Controller
             ]);
         }
         $product->name = $request->name;
+        $product->category = $request->category;
         if ($product->save()){
             $response = [
                 'status' => true,

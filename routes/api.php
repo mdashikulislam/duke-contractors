@@ -10,6 +10,7 @@ use \App\Http\Controllers\Api\UserController;
 use \App\Http\Controllers\Api\DashboardController;
 use \App\Http\Controllers\Api\JobTypeController;
 use \App\Http\Controllers\Api\CompanyController;
+use \App\Http\Controllers\Api\ProductController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -66,6 +67,13 @@ Route::middleware('auth:api')->group(function (){
         Route::middleware('is_admin')->group(function (){
            Route::post('add-company','store');
            Route::post('edit-company','edit');
+        });
+    });
+    Route::controller(ProductController::class)->group(function (){
+        Route::get('get-product','index');
+        Route::middleware('is_admin')->group(function (){
+            Route::post('add-product','store');
+            Route::post('edit-product','edit');
         });
     });
 });

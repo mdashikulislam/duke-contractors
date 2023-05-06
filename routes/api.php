@@ -62,8 +62,10 @@ Route::middleware('auth:api')->group(function (){
         Route::post('edit-job-type','edit');
     });
     Route::controller(CompanyController::class)->group(function (){
+        Route::get('get-company','index');
         Route::middleware('is_admin')->group(function (){
            Route::post('add-company','store');
+           Route::post('edit-company','edit');
         });
     });
 });

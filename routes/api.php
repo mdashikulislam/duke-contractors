@@ -73,7 +73,7 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-product','index');
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');
-            Route::post('edit-product','edit');
+            Route::post('edit-product/{id}','edit');
         });
     });
 });

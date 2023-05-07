@@ -45,29 +45,36 @@ class ProductController extends Controller
             ];
             return response()->json($response);
         }
-
-        $product = new Product();
-        $product->name = $request->name;
-        $product->category = $request->category;
-        $product->save();
-
-        foreach ($request->product_data as $data){
-            $companyProduct = new CompanyProduct();
-            $companyProduct->product_id = $product->id;
-            $companyProduct->company_id = $data->company_id;
-            $companyProduct->dim_covers = $data->dim_covers;
-            $companyProduct->unit_price = $data->unit_price;
-            $companyProduct->save();
+        \DB::beginTransaction();
+        try {
+            $product = new Product();
+            $product->name = $request->name;
+            $product->category = $request->category;
+            $product->save();
+            foreach ($request->product_data as $data){
+                $companyProduct = new CompanyProduct();
+                $companyProduct->product_id = $product->id;
+                $companyProduct->company_id = $data['company_id'];
+                $companyProduct->dim_covers = $data['dim_covers'];
+                $companyProduct->unit_price = $data['unit_price'];
+                $companyProduct->save();
+            }
+            \DB::commit();
+            $response = [
+                'status' => true,
+                'message' => 'Product added successful',
+                'data' => null
+            ];
+        }catch (\Exception $exception){
+            \DB::rollBack();
+            $response = [
+                'status' => false,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ];
         }
 
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Product added successful',
-            'data' => [
-                'product'=>$product
-            ]
-        ]);
+        return response()->json($response);
     }
 
     public function edit($id,Request $request)

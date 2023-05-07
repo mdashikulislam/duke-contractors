@@ -11,6 +11,7 @@ use \App\Http\Controllers\Api\DashboardController;
 use \App\Http\Controllers\Api\JobTypeController;
 use \App\Http\Controllers\Api\CompanyController;
 use \App\Http\Controllers\Api\ProductController;
+use \App\Http\Controllers\Api\CompanyProductController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -76,4 +77,5 @@ Route::middleware('auth:api')->group(function (){
             Route::post('edit-product/{id}','edit');
         });
     });
+
 });

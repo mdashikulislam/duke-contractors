@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanyProduct;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,8 @@ class ProductController extends Controller
     {
         $validator = \Validator::make($request->all(),[
             'name'=>['required','max:255','string','unique:products,name'],
-            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)]
+            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
+            'product_data'=>['required','array']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -43,25 +45,29 @@ class ProductController extends Controller
             ];
             return response()->json($response);
         }
+
         $product = new Product();
         $product->name = $request->name;
         $product->category = $request->category;
-        if ($product->save()){
-            $response = [
-                'status' => true,
-                'message' => '',
-                'data' => [
-                    'product'=>$product
-                ]
-            ];
-        }else{
-            $response = [
-                'status' => false,
-                'message' => 'Product not create',
-                'data' => null
-            ];
+        $product->save();
+
+        foreach ($request->product_data as $data){
+            $companyProduct = new CompanyProduct();
+            $companyProduct->product_id = $product->id;
+            $companyProduct->company_id = $data->company_id;
+            $companyProduct->dim_covers = $data->dim_covers;
+            $companyProduct->unit_price = $data->unit_price;
+            $companyProduct->save();
         }
-        return response()->json($response);
+
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Product added successful',
+            'data' => [
+                'product'=>$product
+            ]
+        ]);
     }
 
     public function edit($id,Request $request)

@@ -25,8 +25,8 @@ class LeadGenerateController extends Controller
             'metal_current'=>['required','numeric','between:0,1'],
             'shingle_current'=>['required','numeric','between:0,1'],
             'flat_current'=>['required','numeric','between:0,1'],
-            'roof_snap'=>['required','array'],
-            'eagle_view'=>['required','array']
+            'roof_snap'=>['required'],
+            'eagle_view'=>['required']
         ]);
         if ($validator->fails()){
             $errors = "";

@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->tinyInteger('flat_current')->default(0);
             $table->longText('roof_snap')->nullable();
             $table->longText('eagle_view')->nullable();
+            $table->decimal('tax',10,2)->default(0);
             $table->timestamps();
         });
     }

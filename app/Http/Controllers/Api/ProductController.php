@@ -12,7 +12,6 @@ class ProductController extends Controller
 {
     public function index()
     {
-
         $products = Product::orderByDesc('created_at')->get();
         return response()->json([
             'status' => true,
@@ -21,8 +20,6 @@ class ProductController extends Controller
                 'products'=>$products
             ]
         ]);
-
-
     }
 
     public function store(Request $request)

@@ -12,6 +12,7 @@ use \App\Http\Controllers\Api\JobTypeController;
 use \App\Http\Controllers\Api\CompanyController;
 use \App\Http\Controllers\Api\ProductController;
 use \App\Http\Controllers\Api\CompanyProductController;
+use \App\Http\Controllers\Api\LeadGenerateController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -71,11 +72,13 @@ Route::middleware('auth:api')->group(function (){
         });
     });
     Route::controller(ProductController::class)->group(function (){
-        Route::get('get-product','index');
+       // Route::get('get-product','index');
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');
-            Route::post('edit-product/{id}','edit');
+            //Route::post('edit-product/{id}','edit');
         });
     });
-
+    Route::controller(LeadGenerateController::class)->group(function (){
+       Route::post('run-estimate','runEstimate');
+    });
 });

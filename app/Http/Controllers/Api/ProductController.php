@@ -126,11 +126,15 @@ class ProductController extends Controller
 
     public function searchProduct(Request $request)
     {
-        $validator = \Validator::make($request->all(),[
+        $rules = [
             'keyword'=>['required','max:255'],
             'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)]
-        ]);
+        ];
+        if ($request->type == 'Material'){
+            $rules['company_id'] = ['required','numeric','exists:\App\Models\Company,id'];
+        }
+        $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";
             $e = $validator->errors()->all();
@@ -145,12 +149,43 @@ class ProductController extends Controller
             return response()->json($response);
         }
         $keyword = $request->keyword;
-
-        $products = Product::selectRaw('id,name,type')->whereHas('categories',function ($q) use ($request){
-            $q->where('name',$request->category);
-        });
-        $products = $products->where('type',$request->type)->get();
-        return $products;
+        $category = $request->category;
+        $type = $request->type;
+        if ($type == 'Material'){
+            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price,company_products.dim_covers,companies.name as company_name')
+                ->join('product_categories','product_categories.product_id','=','products.id')
+                ->join('company_products','company_products.product_id','=','products.id')
+                ->join('companies','companies.id','=','company_products.company_id')
+                ->where('product_categories.name',$category)
+                ->where('products.type',$type)
+                ->where('products.name','LIKE',"%$keyword%")
+                ->groupBy('products.id')
+                ->get();
+        }else{
+            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price')
+                ->join('product_categories','product_categories.product_id','=','products.id')
+                ->join('company_products','company_products.product_id','=','products.id')
+                ->where('product_categories.name',$category)
+                ->where('products.type',$type)
+                ->where('products.name','LIKE',"%$keyword%")
+                ->groupBy('products.id')
+                ->get();
+        }
+        if ($products){
+            return response()->json([
+                'status'=>true,
+                'message'=>'',
+                'data'=>[
+                    'products'=>$products
+                ]
+            ]);
+        }else{
+            return response()->json([
+                'status'=>false,
+                'message'=>'No product found',
+                'data'=>null
+            ]);
+        }
     }
     public function edit($id,Request $request)
     {

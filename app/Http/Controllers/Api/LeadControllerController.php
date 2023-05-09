@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\JobType;
 use App\Models\Lead;
+use App\Models\RoofType;
 use Illuminate\Http\Request;
 
 class LeadControllerController extends Controller
@@ -178,11 +179,13 @@ class LeadControllerController extends Controller
 
         $lead = Lead::myRole()->with('jobTypes')->where('id',$id)->first();
         if (!empty($lead)){
+            $roofTypes = RoofType::where('lead_id',$lead->id)->first();
             $response = [
                 'status'=>true,
                 'message'=>'',
                 'data'=>[
-                    'lead'=>$lead
+                    'lead'=>$lead,
+                    'roofTypes'=>$roofTypes
                 ],
             ];
         }else{

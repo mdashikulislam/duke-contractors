@@ -25,13 +25,17 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $validator = \Validator::make($request->all(),[
+        $rules = [
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'category'=>['required','max:255','array'],
             'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
-        ]);
+        ];
+        if ($request->type == 'Material'){
+            $rules['company_id'] = ['required','numeric','min:1'];
+        }
+        $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";
             $e = $validator->errors()->all();
@@ -88,6 +92,34 @@ class ProductController extends Controller
         return response()->json($response);
     }
 
+    public function searchProduct(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'keyword'=>['required','max:255'],
+            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
+            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)]
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $keyword = $request->keyword;
+
+        $products = Product::selectRaw('id,name,type')->whereHas('categories',function ($q) use ($request){
+            $q->where('name',$request->category);
+        });
+        $products = $products->where('type',$request->type)->get();
+        return $products;
+    }
     public function edit($id,Request $request)
     {
         $validator = \Validator::make($request->all(),[

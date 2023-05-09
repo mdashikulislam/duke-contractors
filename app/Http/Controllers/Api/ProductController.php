@@ -152,7 +152,7 @@ class ProductController extends Controller
         $category = $request->category;
         $type = $request->type;
         if ($type == 'Material'){
-            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price,company_products.dim_covers,companies.name as company_name')
+            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price,company_products.dim_covers,companies.name as company_name,company_products.id as company_product_id')
                 ->join('product_categories','product_categories.product_id','=','products.id')
                 ->join('company_products','company_products.product_id','=','products.id')
                 ->join('companies','companies.id','=','company_products.company_id')
@@ -163,7 +163,7 @@ class ProductController extends Controller
                 ->groupBy('products.id')
                 ->get();
         }else{
-            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price')
+            $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price,company_products.id as company_product_id')
                 ->join('product_categories','product_categories.product_id','=','products.id')
                 ->join('company_products','company_products.product_id','=','products.id')
                 ->where('product_categories.name',$category)

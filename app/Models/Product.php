@@ -10,4 +10,13 @@ class Product extends Model
     {
         return $this->hasMany(ProductCategory::class,'product_id','id');
     }
+
+    public function item()
+    {
+        return $this->hasOne(CompanyProduct::class,'product_id','id');
+    }
+    public function items()
+    {
+        return $this->hasMany(CompanyProduct::class,'product_id','id');
+    }
 }

@@ -30,15 +30,22 @@ class ProductController extends Controller
             return response()->json($response);
         }
 
-
+        $products = Product::with('categories');
         if (isset($request->type) && $request->type == 'Material'){
-
+            $products =  $products->with(['items'=>function($s){
+                $s->with('company');
+                $s->whereHas('company');
+            }])
+                ->whereHas('items')
+                ->where('type','Material');
         }else{
-
+            $products = $products->with(['item'=>function($s){
+                 $s->selectRaw('id,product_id,unit_price');
+            }])
+                ->whereHas('item')
+                ->where('type','!=','Material');
         }
-
-
-        $products = Product::orderByDesc('created_at')->get();
+        $products = $products->orderByDesc('products.created_at')->get();
         return response()->json([
             'status' => true,
             'message' => '',
@@ -46,6 +53,8 @@ class ProductController extends Controller
                 'products'=>$products
             ]
         ]);
+
+
     }
 
     public function store(Request $request)

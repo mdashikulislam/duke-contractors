@@ -157,6 +157,7 @@ class ProductController extends Controller
                 ->join('company_products','company_products.product_id','=','products.id')
                 ->join('companies','companies.id','=','company_products.company_id')
                 ->where('product_categories.name',$category)
+                ->where('companies.id',$request->company_id)
                 ->where('products.type',$type)
                 ->where('products.name','LIKE',"%$keyword%")
                 ->groupBy('products.id')

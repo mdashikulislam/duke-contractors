@@ -11,8 +11,33 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $validator = \Validator::make($request->all(),[
+            'type'=>['nullable','in:'.implode(',',PRODUCT_TYPE)]
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+
+
+        if (isset($request->type) && $request->type == 'Material'){
+
+        }else{
+
+        }
+
+
         $products = Product::orderByDesc('created_at')->get();
         return response()->json([
             'status' => true,
@@ -32,9 +57,7 @@ class ProductController extends Controller
             'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ];
-        if ($request->type == 'Material'){
-            $rules['company_id'] = ['required','numeric','min:1'];
-        }
+
         $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";

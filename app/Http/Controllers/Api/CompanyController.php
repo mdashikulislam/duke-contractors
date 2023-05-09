@@ -48,7 +48,7 @@ class CompanyController extends Controller
         if ($company->save()){
             $response = [
                 'status' => true,
-                'message' => '',
+                'message' => 'Company add successful',
                 'data' => [
                     'company'=>$company
                 ]
@@ -93,7 +93,7 @@ class CompanyController extends Controller
         if ($company->save()){
             $response = [
                 'status' => true,
-                'message' => '',
+                'message' => 'Company update successful',
                 'data' => [
                     'company'=>$company
                 ]

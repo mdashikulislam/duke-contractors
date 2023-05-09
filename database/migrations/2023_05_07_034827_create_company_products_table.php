@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->integer('company_id')->default(0);
             $table->integer('product_id')->default(0);
             $table->integer('dim_covers')->nullable();
-            $table->integer('unit_price')->default(0);
+            $table->decimal('unit_price',10,2)->default(0);
             $table->timestamps();
         });
     }

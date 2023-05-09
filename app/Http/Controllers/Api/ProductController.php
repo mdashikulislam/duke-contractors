@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProduct;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -25,8 +26,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string','unique:products,name'],
-            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
+            'name'=>['required','max:255','string'],
+            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
+            'category'=>['required','max:255','array'],
+            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ]);
         if ($validator->fails()){
@@ -46,15 +49,26 @@ class ProductController extends Controller
         try {
             $product = new Product();
             $product->name = $request->name;
-            $product->category = $request->category;
+            $product->type = $request->type;
             $product->save();
             foreach ($request->product_data as $data){
                 $companyProduct = new CompanyProduct();
                 $companyProduct->product_id = $product->id;
-                $companyProduct->company_id = $data['company_id'];
-                $companyProduct->dim_covers = $data['dim_covers'];
+                if ($request->type =='Material'){
+                    $companyProduct->company_id = @$data['company_id'] ?? 0;
+                    $companyProduct->dim_covers = @$data['dim_covers'] ?? null;
+                }else{
+                    $companyProduct->company_id =  0;
+                    $companyProduct->dim_covers = null;
+                }
                 $companyProduct->unit_price = $data['unit_price'];
                 $companyProduct->save();
+            }
+            foreach ($request->category as $cat){
+                $category = new ProductCategory();
+                $category->product_id = $product->id;
+                $category->name = $cat;
+                $category->save();
             }
             \DB::commit();
             $response = [

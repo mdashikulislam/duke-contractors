@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\LeadProduct;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
 
@@ -69,5 +70,53 @@ class LeadGenerateController extends Controller
             'message'=>'Estimate save successfully',
             'data'=>null
         ]);
+    }
+
+    public function addLeadPrice(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'company_product_id'=> ['required','numeric','exists:\App\Models\CompanyProduct,id'],
+            'quantity'=>['required','numeric'],
+            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
+            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
+            'cost'=>['required','between:0,99999999'],
+            'tax_price'=>['nullable','between:0,99999999'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $leadProduct = new LeadProduct();
+        $leadProduct->lead_id = $request->lead_id;
+        $leadProduct->company_product_id = $request->company_product_id;
+        $leadProduct->quantity = $request->quantity;
+        $leadProduct->category = $request->category;
+        $leadProduct->type = $request->type;
+        $leadProduct->cost = $request->cost;
+        $leadProduct->tax_price = $request->tax_price ?? 0;
+        if ($leadProduct->save()){
+            $response = [
+                'status' => true,
+                'message' => 'Price added successfully',
+                'data' => null
+            ];
+        }else{
+            $response = [
+                'status' => false,
+                'message' => 'Price npt added',
+                'data' => null
+            ];
+        }
+        return response()->json($response);
     }
 }

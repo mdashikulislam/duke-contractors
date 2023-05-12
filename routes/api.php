@@ -13,6 +13,7 @@ use \App\Http\Controllers\Api\CompanyController;
 use \App\Http\Controllers\Api\ProductController;
 use \App\Http\Controllers\Api\CompanyProductController;
 use \App\Http\Controllers\Api\LeadGenerateController;
+use \App\Http\Controllers\Api\MixController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,6 +31,10 @@ Route::middleware('guest')->group(function (){
         Route::post('login','login');
         //Route::post('register','register');
     });
+});
+
+Route::controller(MixController::class)->group(function (){
+    Route::get('get-city-list','getCityList');
 });
 
 Route::middleware('auth:api')->group(function (){

@@ -33,7 +33,8 @@ class LeadGenerateController extends Controller
             'iso'=>['required','in:Yes,No'],
             'deck_type'=>['required','in:Wood Deck,Concrete Deck'],
             'roof_snap'=>['required'],
-            'eagle_view'=>['required']
+            'eagle_view'=>['required'],
+            'tax'=>['required','between:0,100']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -58,7 +59,7 @@ class LeadGenerateController extends Controller
             ]);
         }
         $type = new RoofType();
-        $type->lead_id = $request->id;
+        $type->lead_id = $request->lead_id;
         $type->tile = $request->tile;
         $type->metal = $request->metal;
         $type->shingle = $request->shingle;

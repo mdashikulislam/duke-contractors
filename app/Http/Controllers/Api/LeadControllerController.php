@@ -117,13 +117,16 @@ class LeadControllerController extends Controller
                 'data'=>null
             ]);
         }
+
         $validator = \Validator::make($request->all(),[
-            'client_name'=>['required','max:191'],
+            'seller_name'=>['required','max:191'],
+            'customer_name'=>['required','max:191'],
             'address'=>['required','max:191'],
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','array']
+            'job_type'=>['required','array'],
+            'city_for_permit'=>['required','in:'.implode(',',CITY_LIST)]
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -138,11 +141,15 @@ class LeadControllerController extends Controller
             ];
             return response()->json($response);
         }
-        $lead->client_name = $request->client_name;
+
+        $lead->customer_name = $request->customer_name;
+        $lead->city_for_permit = $request->city_for_permit;
+        $lead->seller_name = $request->seller_name;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
         $lead->email = $request->email;
         $lead->additional_comments = $request->additional_comments;
+
         if ($lead->save()){
             $jobType = [];
             foreach ($request->job_type as $type){

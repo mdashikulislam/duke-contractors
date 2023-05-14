@@ -85,6 +85,75 @@ class LeadGenerateController extends Controller
         ]);
     }
 
+    public function editRunEstimate($id,Request $request)
+    {
+        $type = RoofType::where('id',$id)->first();
+        if (empty($lead)){
+            return  response()->json([
+                'status'=>false,
+                'message'=>'Roof not found',
+                'data'=>null
+            ]);
+        }
+        $validator = \Validator::make($request->all(),[
+            'id'=>['required','numeric'],
+            'tile'=>['required','numeric','between:0,1'],
+            'metal'=>['required','numeric','between:0,1'],
+            'shingle'=>['required','numeric','between:0,1'],
+            'flat'=>['required','numeric','between:0,1'],
+            'tpo'=>['required','numeric','between:0,1'],
+            'tile_current'=>['required','numeric','between:0,1'],
+            'metal_current'=>['required','numeric','between:0,1'],
+            'shingle_current'=>['required','numeric','between:0,1'],
+            'flat_current'=>['required','numeric','between:0,1'],
+            'tpo_current'=>['required','numeric','between:0,1'],
+            'slope_1'=>['required','numeric','between:1,12'],
+            'slope_2'=>['required','numeric','in:0.5,1,1.5'],
+            'iso'=>['required','in:Yes,No'],
+            'deck_type'=>['required','in:Wood Deck,Concrete Deck'],
+            'roof_snap'=>['required'],
+            'eagle_view'=>['required'],
+            'tax'=>['required','between:0,100']
+        ]);
+
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+
+        $type->tile = $request->tile;
+        $type->metal = $request->metal;
+        $type->shingle = $request->shingle;
+        $type->tpo = $request->tpo;
+        $type->flat = $request->flat;
+        $type->tile_current = $request->tile_current;
+        $type->metal_current = $request->metal_current;
+        $type->shingle_current = $request->shingle_current;
+        $type->flat_current = $request->flat_current;
+        $type->tpo_current = $request->tpo_current;
+        $type->slope_1 = $request->slope_1;
+        $type->slope_2 = $request->slope_2;
+        $type->iso = $request->iso;
+        $type->deck_type = $request->deck_type;
+        $type->roof_snap = $request->roof_snap;
+        $type->eagle_view = $request->eagle_view;
+        $type->tax = $request->tax;
+        $type->save();
+        return  response()->json([
+            'status'=>true,
+            'message'=>'Estimate update successfully',
+            'data'=>null
+        ]);
+    }
     public function addLeadPrice(Request $request)
     {
         $validator = \Validator::make($request->all(),[

@@ -117,7 +117,6 @@ class LeadControllerController extends Controller
                 'data'=>null
             ]);
         }
-
         $validator = \Validator::make($request->all(),[
             'seller_name'=>['required','max:191'],
             'customer_name'=>['required','max:191'],
@@ -128,6 +127,7 @@ class LeadControllerController extends Controller
             'job_type'=>['required','array'],
             'city_for_permit'=>['required','in:'.implode(',',CITY_LIST)]
         ]);
+
         if ($validator->fails()){
             $errors = "";
             $e = $validator->errors()->all();

@@ -184,4 +184,15 @@ class UserController extends Controller
         }
         return response()->json($response);
     }
+
+    public function getSellerList()
+    {
+        return response()->json([
+           'status'=>true,
+           'message'=>'',
+           'data' =>[
+               'sellers'=>User::select('id','name','email')->where('role',SALES_ASSOCIATE)->get()
+           ]
+        ]);
+    }
 }

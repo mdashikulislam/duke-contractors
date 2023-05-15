@@ -14,6 +14,7 @@ use \App\Http\Controllers\Api\ProductController;
 use \App\Http\Controllers\Api\CompanyProductController;
 use \App\Http\Controllers\Api\LeadGenerateController;
 use \App\Http\Controllers\Api\MixController;
+use \App\Http\Controllers\Api\CityController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,10 +32,6 @@ Route::middleware('guest')->group(function (){
         Route::post('login','login');
         //Route::post('register','register');
     });
-});
-
-Route::controller(MixController::class)->group(function (){
-    Route::get('get-city-list','getCityList');
 });
 
 Route::middleware('auth:api')->group(function (){
@@ -58,6 +55,7 @@ Route::middleware('auth:api')->group(function (){
             Route::post('edit-user','edit');
         });
         Route::post('profile-update','profileUpdate');
+        Route::get('get-seller-list','getSellerList');
     });
     Route::controller(DashboardController::class)->group(function (){
         Route::get('dashboard','index');
@@ -88,5 +86,13 @@ Route::middleware('auth:api')->group(function (){
        Route::post('run-estimate','runEstimate');
        Route::post('edit-run-estimate/{id}','editRunEstimate');
        Route::post('add-lead-price','addLeadPrice');
+    });
+    Route::controller(CityController::class)->group(function (){
+       Route::get('get-city-list','index');
+       Route::middleware('is_admin')->group(function (){
+          Route::post('add-city','store');
+          Route::post('edit-city/{id}','update');
+          Route::post('delete-city/{id}','delete');
+       });
     });
 });

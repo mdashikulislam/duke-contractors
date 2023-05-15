@@ -14,6 +14,13 @@ const ROLE = ['Admin','Sales Representative','Sub Constructor'];
 const PRODUCT_TYPE = ['Material','Labor','Trash','Permit'];
 const PRODUCT_CATEGORY = ['Tile','Metal','Shingle','Flat'];
 
+const ADMIN = 'Admin';
+const SALES_ASSOCIATE = 'Sales Associate';
+const PROJECT_MANAGER = 'Project Manager';
+const ACCOUNTING = 'Accounting';
+const LEAD_MANAGER = 'Lead Manager';
+
+
 const CITY_LIST = [
     'Aventura',
     'Bal Harbour',

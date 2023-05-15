@@ -31,7 +31,7 @@ class LeadGenerateController extends Controller
             'slope_1'=>['required','numeric','between:1,12'],
             'slope_2'=>['required','numeric','in:0.5,1,1.5'],
             'iso'=>['required','in:Yes,No'],
-            'deck_type'=>['required','in:Wood Deck,Concrete Deck'],
+            'deck_type'=>['required','exists:\App\Models\DeckType,id'],
             'roof_snap'=>['required'],
             'eagle_view'=>['required'],
             'tax'=>['required','between:0,100']
@@ -110,7 +110,7 @@ class LeadGenerateController extends Controller
             'slope_1'=>['required','numeric','between:1,12'],
             'slope_2'=>['required','numeric','in:0.5,1,1.5'],
             'iso'=>['required','in:Yes,No'],
-            'deck_type'=>['required','in:Wood Deck,Concrete Deck'],
+            'deck_type'=>['required','exists:\App\Models\DeckType,id'],
             'roof_snap'=>['required'],
             'eagle_view'=>['required'],
             'tax'=>['required','between:0,100']

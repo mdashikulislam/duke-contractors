@@ -50,14 +50,14 @@ class LeadControllerController extends Controller
     public function addLead(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'seller_name'=>['required','max:191'],
+            'seller_id'=>['required','numeric'],
             'customer_name'=>['required','max:191'],
             'address'=>['required','max:191'],
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
             'job_type'=>['required','array'],
-            'city_for_permit'=>['required','in:'.implode(',',CITY_LIST)]
+            'city_for_permit'=>['required','exists:\App\Models\City,id']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -91,7 +91,7 @@ class LeadControllerController extends Controller
         $lead->user_id = getAuthInfo()->id;
         $lead->customer_name = $request->customer_name;
         $lead->city_for_permit = $request->city_for_permit;
-        $lead->seller_name = $request->seller_name;
+        $lead->seller_id = $request->seller_id;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
         $lead->email = $request->email;
@@ -118,16 +118,15 @@ class LeadControllerController extends Controller
             ]);
         }
         $validator = \Validator::make($request->all(),[
-            'seller_name'=>['required','max:191'],
+            'seller_id'=>['required','numeric'],
             'customer_name'=>['required','max:191'],
             'address'=>['required','max:191'],
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
             'job_type'=>['required','array'],
-            'city_for_permit'=>['required','in:'.implode(',',CITY_LIST)]
+            'city_for_permit'=>['required','exists:\App\Models\City,id']
         ]);
-
         if ($validator->fails()){
             $errors = "";
             $e = $validator->errors()->all();
@@ -144,7 +143,7 @@ class LeadControllerController extends Controller
 
         $lead->customer_name = $request->customer_name;
         $lead->city_for_permit = $request->city_for_permit;
-        $lead->seller_name = $request->seller_name;
+        $lead->seller_id = $request->seller_id;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
         $lead->email = $request->email;

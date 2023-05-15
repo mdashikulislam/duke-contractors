@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->integer('slope_1')->default(0);
             $table->integer('slope_2')->default(0);
             $table->enum('iso',['Yes','No'])->nullable();
-            $table->enum('deck_type',['Wood Deck','Concrete Deck'])->nullable();
+            $table->integer('deck_type')->default(0);
             $table->longText('roof_snap')->nullable();
             $table->longText('eagle_view')->nullable();
             $table->decimal('tax',10,2)->default(0);

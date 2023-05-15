@@ -11,8 +11,8 @@ return new class extends Migration {
             $table->id();
             $table->integer('user_id')->index()->default(0);
             $table->string('customer_name')->nullable();
-            $table->string('seller_name')->nullable();
-            $table->string('city_for_permit')->nullable();
+            $table->integer('seller_id')->default(0);
+            $table->integer('city_for_permit')->default(0);
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();

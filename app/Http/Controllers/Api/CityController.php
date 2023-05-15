@@ -78,7 +78,7 @@ class CityController extends Controller
             ]);
         }
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('cities')->ignore('id')],
+            'name'=>['required','max:255','string',Rule::unique('cities')->ignore($id)],
             'tile'=>['required','between:0,999'],
             'metal'=>['required','between:0,999'],
             'shingle'=>['required','between:0,999'],
@@ -99,6 +99,7 @@ class CityController extends Controller
             return response()->json($response);
         }
         $city->name = $request->name;
+        $city->tile = $request->tile;
         $city->metal = $request->metal;
         $city->shingle = $request->shingle;
         $city->flat = $request->flat;

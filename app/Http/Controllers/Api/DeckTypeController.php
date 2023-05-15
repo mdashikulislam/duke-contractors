@@ -67,7 +67,7 @@ class DeckTypeController extends Controller
             ]);
         }
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('deck_types')->ignore('id')]
+            'name'=>['required','max:255','string',Rule::unique('deck_types')->ignore($id)]
         ]);
         if ($validator->fails()){
             $errors = "";

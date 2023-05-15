@@ -15,6 +15,7 @@ use \App\Http\Controllers\Api\CompanyProductController;
 use \App\Http\Controllers\Api\LeadGenerateController;
 use \App\Http\Controllers\Api\MixController;
 use \App\Http\Controllers\Api\CityController;
+use \App\Http\Controllers\Api\DeckTypeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -94,5 +95,13 @@ Route::middleware('auth:api')->group(function (){
           Route::post('edit-city/{id}','update');
           Route::post('delete-city/{id}','delete');
        });
+    });
+    Route::controller(DeckTypeController::class)->group(function (){
+        Route::get('get-deck-type-list','index');
+        Route::middleware('is_admin')->group(function (){
+            Route::post('add-deck-type','store');
+            Route::post('edit-deck-type/{id}','update');
+            Route::post('delete-deck-type/{id}','delete');
+        });
     });
 });

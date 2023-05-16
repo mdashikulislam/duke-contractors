@@ -128,6 +128,23 @@ class UserController extends Controller
        return response()->json($response);
     }
 
+    public function delete($id, Request $request)
+    {
+        $exist = User::where('id',$id)->first();
+        if (empty($exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found',
+                'data' => null
+            ]);
+        }
+        $exist->delete();
+        return response()->json([
+            'status' => true,
+            'message' => 'User delete successful',
+            'data' => null
+        ]);
+    }
     public function profileUpdate(Request $request)
     {
         $user = \Auth::guard('api')->user();

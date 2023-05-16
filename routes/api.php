@@ -54,6 +54,7 @@ Route::middleware('auth:api')->group(function (){
             Route::post('add-user','store');
             Route::get('get-user','index');
             Route::post('edit-user','edit');
+            Route::post('delete-user/{id}','delete');
         });
         Route::post('profile-update','profileUpdate');
         Route::get('get-seller-list','getSellerList');

@@ -10,7 +10,7 @@ const JOB_TYPE = [
     'Flat Roofs with ISO',
     'Commercial Flat Roofs',
 ];
-const ROLE = ['Admin','Sales Representative','Sub Constructor'];
+
 const PRODUCT_TYPE = ['Material','Labor','Trash','Permit'];
 const PRODUCT_CATEGORY = ['Tile','Metal','Shingle','Flat'];
 
@@ -19,7 +19,7 @@ const SALES_ASSOCIATE = 'Sales Associate';
 const PROJECT_MANAGER = 'Project Manager';
 const ACCOUNTING = 'Accounting';
 const LEAD_MANAGER = 'Lead Manager';
-
+const ROLE = [ADMIN,SALES_ASSOCIATE,PROJECT_MANAGER,ACCOUNTING,LEAD_MANAGER];
 
 const CITY_LIST = [
     'Aventura',

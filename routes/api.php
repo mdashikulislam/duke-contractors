@@ -75,6 +75,7 @@ Route::middleware('auth:api')->group(function (){
         Route::middleware('is_admin')->group(function (){
            Route::post('add-company','store');
            Route::post('edit-company/{id}','edit');
+           Route::post('delete-company/{id}','delete');
         });
     });
     Route::controller(ProductController::class)->group(function (){

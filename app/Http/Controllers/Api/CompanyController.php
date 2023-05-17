@@ -107,4 +107,22 @@ class CompanyController extends Controller
         }
         return response()->json($response);
     }
+
+    public function delete($id)
+    {
+        $company  = Company::where('id',$id)->first();
+        if (empty($company)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Company not found',
+                'data' => null
+            ]);
+        }
+        $company->delete();
+        return response()->json([
+            'status' => true,
+            'message' => 'Company delete successful',
+            'data' => null
+        ]);
+    }
 }

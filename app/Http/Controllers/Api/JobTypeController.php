@@ -96,4 +96,22 @@ class JobTypeController extends Controller
         }
         return response()->json($response);
     }
+
+    public function delete($id)
+    {
+        $type = JobType::where('id',$id)->first();
+        if (empty($type)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Job type not found',
+                'data' => null
+            ]);
+        }
+        $type->delete();
+        return response()->json([
+            'status' => true,
+            'message' => 'Job type delete successful',
+            'data' => null
+        ]);
+    }
 }

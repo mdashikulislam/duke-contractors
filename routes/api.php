@@ -68,6 +68,7 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-job-type','index');
         Route::post('add-job-type','store');
         Route::post('edit-job-type','edit');
+        Route::post('delete-job-type/{id}','delete');
     });
     Route::controller(CompanyController::class)->group(function (){
         Route::get('get-company','index');

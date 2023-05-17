@@ -82,6 +82,7 @@ Route::middleware('auth:api')->group(function (){
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');
             //Route::post('edit-product/{id}','edit');
+            Route::post('delete-product/{id}','delete');
         });
     });
     Route::controller(LeadGenerateController::class)->group(function (){

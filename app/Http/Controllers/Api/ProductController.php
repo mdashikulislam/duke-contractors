@@ -234,4 +234,28 @@ class ProductController extends Controller
         }
         return response()->json($response);
     }
+
+    public function delete($id)
+    {
+        $product = Product::where('id',$id)->first();
+        if (empty($product)){
+            return response()->json([
+                'status' => false,
+                'message' => 'product not found',
+                'data' => null
+            ]);
+        }
+        $product->delete();
+        if ($product->has('item')){
+            $product->item()->delete();
+        }
+        if ($product->has('items')){
+            $product->items()->delete();
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Product delete successful',
+            'data' => null
+        ]);
+    }
 }

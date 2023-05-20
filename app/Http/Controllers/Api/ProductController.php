@@ -93,7 +93,7 @@ class ProductController extends Controller
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
-                $product->own_category = $request->own_category;
+                $product->product_categoty = $request->own_category;
             }
             $product->save();
             foreach ($request->product_data as $data){

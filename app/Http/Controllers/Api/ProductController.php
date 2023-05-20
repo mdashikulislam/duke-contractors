@@ -361,14 +361,23 @@ class ProductController extends Controller
         $category = $request->category;
         $dataValue = [];
         foreach ($category as $cat){
-            $products = Product::whereHas('categories',function ($q) use ($cat){
+            $plywood = Product::whereHas('categories',function ($q) use ($cat){
                 $q->where('name',$cat);
             })
-                ->where('is_default',1)->where('type','Material');
+                ->where('is_default',1)
+                ->where('type','Material')->where('wood_type','Plywood')->get();
 
-            $plywood =  $products->where('wood_type','Plywood')->get();
-            $fasica =  $products->where('wood_type','Fasica')->get();
-            $none =  $products->where('wood_type','None')->get();
+            $fasica = Product::whereHas('categories',function ($q) use ($cat){
+                $q->where('name',$cat);
+            })
+                ->where('is_default',1)
+                ->where('type','Material')->where('wood_type','Fasica')->get();
+            $none = Product::whereHas('categories',function ($q) use ($cat){
+                $q->where('name',$cat);
+            })
+                ->where('is_default',1)
+                ->where('type','Material')->where('wood_type','None')->get();
+
             $newData = [
                 'plywood'=>$plywood,
                 'fasica'=>$fasica,

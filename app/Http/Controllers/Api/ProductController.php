@@ -322,12 +322,19 @@ class ProductController extends Controller
         $products = Product::whereHas('categories',function ($q) use ($category){
             $q->whereIn('name',$category);
         })
-        ->where('is_default',1)->where('type','Material')->get();
+        ->where('is_default',1)->where('type','Material');
+
+        $plywood =  $products->where('wood_type','Plywood')->get();
+        $fasica =  $products->where('wood_type','Fasica')->get();
+        $none=  $products->where('wood_type','None')->get();
+
         return response()->json([
             'status' => true,
             'message' => '',
             'data' => [
-                'products'=>$products
+                'plywood'=>$plywood,
+                'fasica'=>$fasica,
+                'none'=>$none
             ]
         ]);
     }

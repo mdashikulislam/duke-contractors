@@ -57,6 +57,37 @@ class ProductController extends Controller
 
     }
 
+    public function productDetails($id)
+    {
+        $exist = Product::where('id',$id)->first();
+        if (empty($exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found',
+                'data' => null
+            ]);
+        }
+        $product = Product::with('categories')->whereHas('categories');
+        if ($exist->type == 'Material'){
+            $product =  $product->with(['items'=>function($s){
+                $s->with('company');
+                $s->whereHas('company');
+            }])->whereHas('items',function ($s){
+                $s->with('company');
+                $s->whereHas('company');
+            });
+        }else{
+            $product =  $product->with('item')->whereHas('item');
+        }
+        $product = $product->where('id',$id)->first();
+        return response()->json([
+            'status'=>true,
+            'message'=>'',
+            'data'=>[
+                'product'=>$product
+            ]
+        ]);
+    }
     public function store(Request $request)
     {
         $rules = [

@@ -80,6 +80,7 @@ Route::middleware('auth:api')->group(function (){
     });
     Route::controller(ProductController::class)->group(function (){
         Route::get('get-product','index');
+        Route::get('product-details/{id}','productDetails');
         Route::post('search-product','searchProduct');
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');

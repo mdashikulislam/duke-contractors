@@ -10,12 +10,14 @@ return new class extends Migration {
         Schema::create('lead_products', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lead_id');
-            $table->unsignedBigInteger('company_product_id')->nullable();
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('company_id')->nullable();
             $table->foreign('lead_id')->references('id')->on('leads')->onDelete('cascade');
-            $table->foreign('company_product_id')->references('id')->on('company_products')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
             $table->integer('quantity')->default(0);
-            $table->string('type',20)->nullable();
             $table->string('category',20)->nullable();
+            $table->string('type',20)->nullable();
             $table->decimal('cost',10,2)->default(0);
             $table->timestamps();
         });

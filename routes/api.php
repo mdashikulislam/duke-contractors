@@ -84,7 +84,7 @@ Route::middleware('auth:api')->group(function (){
         Route::post('search-product','searchProduct');
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');
-            //Route::post('edit-product/{id}','edit');
+            Route::post('edit-product/{id}','edit');
             Route::post('delete-product/{id}','delete');
         });
         Route::post('get-default-product','getDefaultProduct');

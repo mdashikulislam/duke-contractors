@@ -230,10 +230,28 @@ class ProductController extends Controller
     }
     public function edit($id,Request $request)
     {
-        $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('products')->ignore('id')],
-            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)]
-        ]);
+        $product = Product::where('id',$id)->first();
+        if (empty($product)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Product not found',
+                'data' => null
+            ]);
+        }
+
+        $rules = [
+            'name'=>['required','max:255','string'],
+            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
+            'category'=>['required','max:255','array'],
+            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
+            'product_data'=>['required','array']
+        ];
+        if ($request->tyep == 'Material'){
+            $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
+            $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
+            $rules['is_default'] =['nullable','numeric','between:0,1'];
+        }
+        $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";
             $e = $validator->errors()->all();
@@ -247,32 +265,54 @@ class ProductController extends Controller
             ];
             return response()->json($response);
         }
-        $product  = Product::where('id',$id)->first();
-        if (empty($product)){
-            return response()->json([
-                'status'=>false,
-                'message'=>'Product not found',
-                'data'=>null
-            ]);
-        }
-        $product->name = $request->name;
-        $product->category = $request->category;
-        if ($product->save()){
+
+        \DB::beginTransaction();
+        try {
+            $product->name = $request->name;
+            $product->type = $request->type;
+            if ($request->type == 'Material'){
+                $product->is_default = $request->is_default ?? 0;
+                $product->wood_type = $request->wood_type ?? 'None';
+                $product->product_categoty = $request->own_category;
+            }
+            $product->save();
+            foreach ($request->product_data as $data){
+                $companyProduct = new CompanyProduct();
+                $companyProduct->product_id = $product->id;
+                if ($request->type =='Material'){
+                    $companyProduct->company_id = @$data['company_id'] ?? 0;
+                    $companyProduct->dim_covers = @$data['dim_covers'] ?? null;
+                }else{
+                    $companyProduct->company_id =  0;
+                    $companyProduct->dim_covers = null;
+                }
+                $companyProduct->unit_price = $data['unit_price'];
+                $companyProduct->save();
+            }
+            ProductCategory::where('product_id',$id)->delete();
+            foreach ($request->category as $cat){
+                $category = new ProductCategory();
+                $category->product_id = $product->id;
+                $category->name = $cat;
+                $category->save();
+            }
+            \DB::commit();
             $response = [
                 'status' => true,
-                'message' => '',
-                'data' => [
-                    'product'=>$product
-                ]
+                'message' => 'Product update successful',
+                'data' => null
             ];
-        }else{
+        }catch (\Exception $exception){
+            \DB::rollBack();
             $response = [
                 'status' => false,
-                'message' => 'Product not create',
+                'message' => $exception->getMessage(),
                 'data' => null
             ];
         }
+
         return response()->json($response);
+
     }
 
     public function delete($id)

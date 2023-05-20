@@ -362,7 +362,7 @@ class ProductController extends Controller
         $dataValue = [];
         foreach ($category as $cat){
             $products = Product::whereHas('categories',function ($q) use ($cat){
-                $q->whereIn('name',$cat);
+                $q->where('name',$cat);
             })
                 ->where('is_default',1)->where('type','Material');
 
@@ -376,7 +376,6 @@ class ProductController extends Controller
             ];
             $dataValue[$cat] = $newData;
         }
-
 
         return response()->json([
             'status' => true,

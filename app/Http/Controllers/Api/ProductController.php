@@ -63,11 +63,12 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'category'=>['required','max:255','array'],
+            'own_category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)],
             'is_default'=>['nullable','numeric','between:0,1'],
+            'wood_type'=>['required','in:None,Plywood,Fasica'],
             'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ];
-
         $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
             $errors = "";
@@ -88,6 +89,7 @@ class ProductController extends Controller
             $product->name = $request->name;
             $product->type = $request->type;
             $product->is_default = $request->is_default ?? 0;
+            $product->wood_type = $request->wood_type;
             $product->save();
             foreach ($request->product_data as $data){
                 $companyProduct = new CompanyProduct();
@@ -290,6 +292,17 @@ class ProductController extends Controller
             'message' => '',
             'data' => [
                 'products'=>$products
+            ]
+        ]);
+    }
+
+    public function productOwnCategory()
+    {
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'ownCategories'=>PRODUCT_CATEGORY_OWN
             ]
         ]);
     }

@@ -163,7 +163,7 @@ class LeadGenerateController extends Controller
             'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'cost'=>['required','between:0,99999999'],
-            'tax_price'=>['nullable','between:0,99999999'],
+            'tax_price'=>['nullable','between:0,99999999']
         ]);
         if ($validator->fails()){
             $errors = "";

@@ -390,7 +390,7 @@ class ProductController extends Controller
             'status' => true,
             'message' => '',
             'data' => [
-                json_decode(json_encode($dataValue))
+                $dataValue
             ]
         ]);
     }

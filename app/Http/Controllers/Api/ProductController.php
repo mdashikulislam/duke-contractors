@@ -342,8 +342,7 @@ class ProductController extends Controller
     public function getDefaultProduct(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'category'=>['required','array'],
-            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)]
+            'category'=>['required','in:'.implode(',',PRODUCT_CATEGORY)],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -360,14 +359,12 @@ class ProductController extends Controller
         }
         $category = $request->category;
         $products = Product::whereHas('categories',function ($q) use ($category){
-            $q->whereIn('name',$category);
+            $q->where('name',$category);
         })
         ->where('is_default',1)->where('type','Material');
-
         $plywood =  $products->where('wood_type','Plywood')->get();
         $fasica =  $products->where('wood_type','Fasica')->get();
         $none=  $products->where('wood_type','None')->get();
-
         return response()->json([
             'status' => true,
             'message' => '',

@@ -34,7 +34,10 @@ class LeadGenerateController extends Controller
             'deck_type'=>['required','exists:\App\Models\DeckType,id'],
             'roof_snap'=>['required'],
             'eagle_view'=>['required'],
-            'tax'=>['required','between:0,100']
+            'tax'=>['required','between:0,100'],
+            'product_data'=>['required','array'],
+            'product_data.*.id'=>['required','numeric'],
+            'product_data.*.quantity'=>['required','numeric'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -49,7 +52,6 @@ class LeadGenerateController extends Controller
             ];
             return response()->json($response);
         }
-
         $check = RoofType::where('lead_id',$request->lead_id)->exists();
         if ($check){
             return  response()->json([
@@ -78,6 +80,9 @@ class LeadGenerateController extends Controller
         $type->eagle_view = $request->eagle_view;
         $type->tax = $request->tax;
         $type->save();
+
+
+
         return  response()->json([
             'status'=>true,
             'message'=>'Estimate save successfully',

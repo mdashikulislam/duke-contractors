@@ -63,6 +63,7 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'category'=>['required','max:255','array'],
+            'is_default'=>['nullable','numeric','between:0,1'],
             'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ];
@@ -86,6 +87,7 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
+            $product->is_default = $request->is_default ?? 0;
             $product->save();
             foreach ($request->product_data as $data){
                 $companyProduct = new CompanyProduct();
@@ -256,6 +258,39 @@ class ProductController extends Controller
             'status' => true,
             'message' => 'Product delete successful',
             'data' => null
+        ]);
+    }
+
+    public function getDefaultProduct(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'category'=>['required','array'],
+            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)]
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $category = $request->category;
+        $products = Product::whereHas('categories',function ($q) use ($category){
+            $q->whereIn('name',$category);
+        })
+        ->where('is_default',1)->where('type','Material')->get();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'products'=>$products
+            ]
         ]);
     }
 }

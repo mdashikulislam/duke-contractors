@@ -12,7 +12,7 @@ const JOB_TYPE = [
 ];
 
 const PRODUCT_TYPE = ['Material','Labor','Trash','Permit'];
-const PRODUCT_CATEGORY = ['Tile','Metal','Shingle','Flat'];
+const PRODUCT_CATEGORY = ['Tile','Metal','Shingle','Flat','Tpo'];
 
 const ADMIN = 'Admin';
 const SALES_ASSOCIATE = 'Sales Associate';

@@ -342,7 +342,8 @@ class ProductController extends Controller
     public function getDefaultProduct(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'category'=>['required','in:'.implode(',',PRODUCT_CATEGORY)],
+            'category'=>['required','array'],
+            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)]
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -358,20 +359,30 @@ class ProductController extends Controller
             return response()->json($response);
         }
         $category = $request->category;
-        $products = Product::whereHas('categories',function ($q) use ($category){
-            $q->where('name',$category);
-        })
-        ->where('is_default',1)->where('type','Material');
-        $plywood =  $products->where('wood_type','Plywood')->get();
-        $fasica =  $products->where('wood_type','Fasica')->get();
-        $none=  $products->where('wood_type','None')->get();
+        $dataValue = [];
+        foreach ($category as $cat){
+            $products = Product::whereHas('categories',function ($q) use ($cat){
+                $q->whereIn('name',$cat);
+            })
+                ->where('is_default',1)->where('type','Material');
+
+            $plywood =  $products->where('wood_type','Plywood')->get();
+            $fasica =  $products->where('wood_type','Fasica')->get();
+            $none =  $products->where('wood_type','None')->get();
+            $newData = [
+                'plywood'=>$plywood,
+                'fasica'=>$fasica,
+                'none'=>$none
+            ];
+            $dataValue[$cat] = $newData;
+        }
+
+
         return response()->json([
             'status' => true,
             'message' => '',
             'data' => [
-                'plywood'=>$plywood,
-                'fasica'=>$fasica,
-                'none'=>$none
+                $dataValue
             ]
         ]);
     }

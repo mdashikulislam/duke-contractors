@@ -61,43 +61,54 @@ class LeadGenerateController extends Controller
                 'data'=>null
             ]);
         }
-        $type = new RoofType();
-        $type->lead_id = $request->lead_id;
-        $type->tile = $request->tile;
-        $type->metal = $request->metal;
-        $type->shingle = $request->shingle;
-        $type->tpo = $request->tpo;
-        $type->flat = $request->flat;
-        $type->tile_current = $request->tile_current;
-        $type->metal_current = $request->metal_current;
-        $type->shingle_current = $request->shingle_current;
-        $type->flat_current = $request->flat_current;
-        $type->tpo_current = $request->tpo_current;
-        $type->slope_1 = $request->slope_1;
-        $type->slope_2 = $request->slope_2;
-        $type->iso = $request->iso;
-        $type->deck_type = $request->deck_type;
-        $type->roof_snap = $request->roof_snap;
-        $type->eagle_view = $request->eagle_view;
-        $type->tax = $request->tax;
-        $type->save();
-
-        foreach ($request->product_data as $data){
-            $leadProduct = new LeadProduct();
-            $leadProduct->lead_id = $request->lead_id;
-            $leadProduct->product_id = $data->product_id;
-            $leadProduct->company_id = 0;
-            $leadProduct->quantity = $request->quantity;
-            $leadProduct->category = $request->category;
-            $leadProduct->type = "Material";
-            $leadProduct->cost = 0;
-            $leadProduct->save();
+        \DB::beginTransaction();
+        try {
+            $type = new RoofType();
+            $type->lead_id = $request->lead_id;
+            $type->tile = $request->tile;
+            $type->metal = $request->metal;
+            $type->shingle = $request->shingle;
+            $type->tpo = $request->tpo;
+            $type->flat = $request->flat;
+            $type->tile_current = $request->tile_current;
+            $type->metal_current = $request->metal_current;
+            $type->shingle_current = $request->shingle_current;
+            $type->flat_current = $request->flat_current;
+            $type->tpo_current = $request->tpo_current;
+            $type->slope_1 = $request->slope_1;
+            $type->slope_2 = $request->slope_2;
+            $type->iso = $request->iso;
+            $type->deck_type = $request->deck_type;
+            $type->roof_snap = $request->roof_snap;
+            $type->eagle_view = $request->eagle_view;
+            $type->tax = $request->tax;
+            $type->save();
+            foreach ($request->product_data as $data){
+                $leadProduct = new LeadProduct();
+                $leadProduct->lead_id = $request->lead_id;
+                $leadProduct->product_id = $data->product_id;
+                $leadProduct->company_id = 0;
+                $leadProduct->quantity = $request->quantity;
+                $leadProduct->category = $request->category;
+                $leadProduct->type = "Material";
+                $leadProduct->cost = 0;
+                $leadProduct->save();
+            }
+            \DB::commit();
+            return  response()->json([
+                'status'=>true,
+                'message'=>'Estimate save successfully',
+                'data'=>null
+            ]);
+        }catch (\Exception $exception){
+            \DB::rollBack();
+            return  response()->json([
+                'status'=>true,
+                'message'=>$exception->getMessage(),
+                'data'=>null
+            ]);
         }
-        return  response()->json([
-            'status'=>true,
-            'message'=>'Estimate save successfully',
-            'data'=>null
-        ]);
+
     }
 
     public function editRunEstimate($id,Request $request)

@@ -36,8 +36,9 @@ class LeadGenerateController extends Controller
             'eagle_view'=>['required'],
             'tax'=>['required','between:0,100'],
             'product_data'=>['required','array'],
-            'product_data.*.id'=>['required','numeric'],
+            'product_data.*.product_id'=>['required','numeric'],
             'product_data.*.quantity'=>['required','numeric'],
+            'product_data.*.category'=>['required','numeric'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -81,8 +82,17 @@ class LeadGenerateController extends Controller
         $type->tax = $request->tax;
         $type->save();
 
-
-
+        foreach ($request->product_data as $data){
+            $leadProduct = new LeadProduct();
+            $leadProduct->lead_id = $request->lead_id;
+            $leadProduct->product_id = $data->product_id;
+            $leadProduct->company_id = 0;
+            $leadProduct->quantity = $request->quantity;
+            $leadProduct->category = $request->category;
+            $leadProduct->type = "Material";
+            $leadProduct->cost = 0;
+            $leadProduct->save();
+        }
         return  response()->json([
             'status'=>true,
             'message'=>'Estimate save successfully',

@@ -95,6 +95,7 @@ class LeadGenerateController extends Controller
                 $leadProduct->cost = 0;
                 $leadProduct->save();
             }
+            Lead::where('id',$request->lead_id)->update(['is_estimate'=>1]);
             \DB::commit();
             return  response()->json([
                 'status'=>true,

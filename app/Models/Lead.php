@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lead extends Model
 {
     use HasFactory;
+    protected $fillable = ['is_estimate'];
     public static function myRole()
     {
        $auth = getAuthInfo();

@@ -92,6 +92,7 @@ Route::middleware('auth:api')->group(function (){
     });
     Route::controller(LeadGenerateController::class)->group(function (){
        Route::post('run-estimate','runEstimate');
+       Route::get('run-estimate-details/{id}','runEstimateDetails');
        Route::post('edit-run-estimate/{id}','editRunEstimate');
        Route::post('add-lead-price','addLeadPrice');
     });

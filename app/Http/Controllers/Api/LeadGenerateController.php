@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Lead;
 use App\Models\LeadProduct;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
@@ -86,10 +87,10 @@ class LeadGenerateController extends Controller
             foreach ($request->product_data as $data){
                 $leadProduct = new LeadProduct();
                 $leadProduct->lead_id = $request->lead_id;
-                $leadProduct->product_id = $data->product_id;
+                $leadProduct->product_id = $data['product_id'];
                 $leadProduct->company_id = 0;
-                $leadProduct->quantity = $request->quantity;
-                $leadProduct->category = $request->category;
+                $leadProduct->quantity = $request['quantity'];
+                $leadProduct->category = $request['category'];
                 $leadProduct->type = "Material";
                 $leadProduct->cost = 0;
                 $leadProduct->save();
@@ -103,7 +104,7 @@ class LeadGenerateController extends Controller
         }catch (\Exception $exception){
             \DB::rollBack();
             return  response()->json([
-                'status'=>true,
+                'status'=>false,
                 'message'=>$exception->getMessage(),
                 'data'=>null
             ]);
@@ -111,6 +112,28 @@ class LeadGenerateController extends Controller
 
     }
 
+    public function runEstimateDetails($leadId)
+    {
+        $lead = Lead::where('id',$leadId)->first();
+        if (empty($lead)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Lead not found',
+                'data' => null
+            ]);
+        }
+        $roofType = RoofType::where('lead_id',$leadId)->first();
+        $leadProduct = LeadProduct::where('lead_id',$leadId)->get();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'roofType'=>$roofType,
+                'leadProduct'=>$leadProduct
+            ]
+        ]);
+
+    }
     public function editRunEstimate($id,Request $request)
     {
         $type = RoofType::where('id',$id)->first();

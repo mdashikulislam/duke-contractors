@@ -88,7 +88,7 @@ class LeadGenerateController extends Controller
                 $leadProduct = new LeadProduct();
                 $leadProduct->lead_id = $request->lead_id;
                 $leadProduct->product_id = $data['product_id'];
-                $leadProduct->company_id = 0;
+                $leadProduct->company_id = null;
                 $leadProduct->quantity = $data['quantity'];
                 $leadProduct->category = $data['category'];
                 $leadProduct->type = "Material";

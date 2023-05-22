@@ -38,7 +38,7 @@ class LeadGenerateController extends Controller
             'product_data'=>['required','array'],
             'product_data.*.product_id'=>['required','numeric'],
             'product_data.*.quantity'=>['required','numeric'],
-            'product_data.*.category'=>['required','numeric'],
+            'product_data.*.category'=>['required','string'],
         ]);
         if ($validator->fails()){
             $errors = "";

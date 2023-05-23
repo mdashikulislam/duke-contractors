@@ -23,4 +23,9 @@ class Lead extends Model
     {
         return $this->belongsToMany(JobType::class,'lead_job_types');
     }
+
+    public function cityOfPermit()
+    {
+        return $this->hasOne(City::class,'id','city_for_permit');
+    }
 }

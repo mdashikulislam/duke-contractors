@@ -37,7 +37,10 @@ class LeadControllerController extends Controller
         if (!empty($request->offset)){
             $offset = $request->offset;
         }
-        $leads = Lead::myRole()->with('jobTypes')->whereHas('jobTypes')->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
+        $leads = Lead::myRole()->with('jobTypes')
+            ->whereHas('jobTypes')
+            ->with('cityOfPermit')
+            ->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
         return response()->json([
             'status'=>true,
             'message'=>'',

@@ -125,13 +125,39 @@ class LeadGenerateController extends Controller
             ]);
         }
         $roofType = RoofType::where('lead_id',$leadId)->first();
-        $leadProduct = LeadProduct::where('lead_id',$leadId)->get();
+        if (empty($roofType)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You need to run estimate first',
+                'data' => null
+            ]);
+        }
+        $companyId = $roofType->company_id;
+
+//        $leadProduct = LeadProduct::selectRaw('lead_products.*')
+//            ->join('products','products.id','=','lead_products.product_id')
+//            ->join('')
+//            ->where('lead_products.lead_id',$leadId)->get();
+
+
+        $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
+            $s->with(['item'=>function($p) use($companyId){
+                $p->where('company_id',$companyId);
+            }]);
+        }])
+            ->whereHas('products',function ($s)use($companyId){
+                $s->whereHas(['item'=>function($p) use($companyId){
+                    $p->where('company_id',$companyId);
+                }]);
+            })
+            ->where('type','Material')
+            ->where('lead_id',$leadId)->get();
         return response()->json([
             'status' => true,
             'message' => '',
             'data' => [
                 'roofType'=>$roofType,
-                'leadProduct'=>$leadProduct
+                'materialProduct'=>$materialProduct
             ]
         ]);
 

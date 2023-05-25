@@ -28,7 +28,8 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string','unique:companies,name']
+            'name'=>['required','max:255','string','unique:companies,name'],
+            'is_default'=>['required','numeric','between:0,1']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -45,7 +46,13 @@ class CompanyController extends Controller
         }
         $company = new Company();
         $company->name = $request->name;
+        $company->is_default = $request->is_default;
         if ($company->save()){
+            if ($request->is_default == 1){
+                Company::where('id','!=',$company->id)->update([
+                   'is_default' => 0
+                ]);
+            }
             $response = [
                 'status' => true,
                 'message' => 'Company add successful',
@@ -66,7 +73,8 @@ class CompanyController extends Controller
     public function edit($id,Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('companies')->ignore('id')]
+            'name'=>['required','max:255','string',Rule::unique('companies')->ignore('id')],
+            'is_default'=>['required','numeric','between:0,1']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -90,7 +98,13 @@ class CompanyController extends Controller
             ]);
         }
         $company->name = $request->name;
+        $company->is_default = $request->is_default;
         if ($company->save()){
+            if ($request->is_default == 1){
+                Company::where('id','!=',$company->id)->update([
+                    'is_default' => 0
+                ]);
+            }
             $response = [
                 'status' => true,
                 'message' => 'Company update successful',

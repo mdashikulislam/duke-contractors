@@ -73,7 +73,7 @@ class CompanyController extends Controller
     public function edit($id,Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string',Rule::unique('companies')->ignore('id')],
+            'name'=>['required','max:255','string',Rule::unique('companies')->ignore($id)],
             'is_default'=>['required','numeric','between:0,1']
         ]);
         if ($validator->fails()){

@@ -145,11 +145,11 @@ class LeadGenerateController extends Controller
                 $p->where('company_id',$companyId);
             }]);
         }])
-//            ->whereHas('products',function ($s)use($companyId){
-//                $s->whereHas(['item'=>function($p) use($companyId){
-//                    $p->where('company_id',$companyId);
-//                }]);
-//            })
+            ->whereHas('products',function ($s) use($companyId){
+                $s->whereHas('item',function($p) use($companyId){
+                    $p->where('company_id',$companyId);
+                });
+            })
             ->where('type','Material')
             ->where('lead_id',$leadId)->get();
         return response()->json([

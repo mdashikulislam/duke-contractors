@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadProduct;
 use App\Models\RoofType;
@@ -83,12 +84,12 @@ class LeadGenerateController extends Controller
             $type->roof_snap = $request->roof_snap;
             $type->eagle_view = $request->eagle_view;
             $type->tax = $request->tax;
+            $type->company_id = @Company::where('is_default',1)->first()->id ?? 1;
             $type->save();
             foreach ($request->product_data as $data){
                 $leadProduct = new LeadProduct();
                 $leadProduct->lead_id = $request->lead_id;
                 $leadProduct->product_id = $data['product_id'];
-                $leadProduct->company_id = null;
                 $leadProduct->quantity = $data['quantity'];
                 $leadProduct->category = $data['category'];
                 $leadProduct->type = "Material";

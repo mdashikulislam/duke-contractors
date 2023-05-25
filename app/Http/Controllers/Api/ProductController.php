@@ -173,6 +173,7 @@ class ProductController extends Controller
         ];
         if ($request->type == 'Material'){
             $rules['company_id'] = ['required','numeric','exists:\App\Models\Company,id'];
+            $rules['own_category'] = ['nullable','string','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
         }
         $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
@@ -198,8 +199,11 @@ class ProductController extends Controller
                 ->join('companies','companies.id','=','company_products.company_id')
                 ->where('product_categories.name',$category)
                 ->where('companies.id',$request->company_id)
-                ->where('products.type',$type)
-                ->where('products.name','LIKE',"%$keyword%")
+                ->where('products.type',$type);
+            if ($request->own_category){
+                $products = $products->where('product_categoty',$request->own_category);
+            }
+            $products = $products->where('products.name','LIKE',"%$keyword%")
                 ->groupBy('products.id')
                 ->get();
         }else{

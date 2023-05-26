@@ -168,10 +168,10 @@ class ProductController extends Controller
     {
         $rules = [
             'keyword'=>['required','max:255'],
-            'category'=>['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)]
         ];
         if ($request->type == 'Material'){
+            $rules['category'] = ['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)];
             $rules['company_id'] = ['required','numeric','exists:\App\Models\Company,id'];
             $rules['own_category'] = ['nullable','string','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
         }
@@ -210,7 +210,6 @@ class ProductController extends Controller
             $products = Product::selectRaw('products.id,products.name,products.type,company_products.unit_price,company_products.id as company_product_id')
                 ->join('product_categories','product_categories.product_id','=','products.id')
                 ->join('company_products','company_products.product_id','=','products.id')
-                ->where('product_categories.name',$category)
                 ->where('products.type',$type)
                 ->where('products.name','LIKE',"%$keyword%")
                 ->groupBy('products.id')

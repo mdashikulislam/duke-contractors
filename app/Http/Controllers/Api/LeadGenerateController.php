@@ -278,7 +278,7 @@ class LeadGenerateController extends Controller
         return response()->json($response);
     }
 
-    public function editLeadDetails($id,Request $request)
+    public function editLeadDetails(Request $request)
     {
         $validator = \Validator::make($request->all(),[
             'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
@@ -310,10 +310,19 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-
-
-
-
+        $roofType = RoofType::where('lead_id',$lead->id)->first();
+        $roofType->company_id = $request->company_id;
+        $roofType->save();
+        if (!empty($request->material_product_data)){
+            foreach ($request->material_product_data as $data){
+                LeadProduct::firstOrCreate([
+                    'lead_id' => $lead->id,
+                    'product_id' => $data->product_id,
+                    'category' => $data->category,
+                    'type' => $data->type,
+                ],['quantity' => $request->quantity]);
+            }
+        }
 
     }
 }

@@ -93,11 +93,11 @@ class ProductController extends Controller
         $rules = [
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
-            'category'=>['required','max:255','array'],
-            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ];
         if ($request->tyep == 'Material'){
+            $rules['category']=['required','max:255','array'];
+            $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
             $rules['is_default'] =['nullable','numeric','between:0,1'];
@@ -140,11 +140,13 @@ class ProductController extends Controller
                 $companyProduct->unit_price = $data['unit_price'];
                 $companyProduct->save();
             }
-            foreach ($request->category as $cat){
-                $category = new ProductCategory();
-                $category->product_id = $product->id;
-                $category->name = $cat;
-                $category->save();
+            if ($request->type == 'Material'){
+                foreach ($request->category as $cat){
+                    $category = new ProductCategory();
+                    $category->product_id = $product->id;
+                    $category->name = $cat;
+                    $category->save();
+                }
             }
             \DB::commit();
             $response = [
@@ -245,11 +247,11 @@ class ProductController extends Controller
         $rules = [
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
-            'category'=>['required','max:255','array'],
-            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
             'product_data'=>['required','array']
         ];
         if ($request->tyep == 'Material'){
+            $rules['category']=['required','max:255','array'];
+            $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
             $rules['is_default'] =['nullable','numeric','between:0,1'];
@@ -292,12 +294,14 @@ class ProductController extends Controller
                 $companyProduct->unit_price = $data['unit_price'];
                 $companyProduct->save();
             }
-            ProductCategory::where('product_id',$id)->delete();
-            foreach ($request->category as $cat){
-                $category = new ProductCategory();
-                $category->product_id = $product->id;
-                $category->name = $cat;
-                $category->save();
+            if ($request->type =='Material') {
+                ProductCategory::where('product_id', $id)->delete();
+                foreach ($request->category as $cat) {
+                    $category = new ProductCategory();
+                    $category->product_id = $product->id;
+                    $category->name = $cat;
+                    $category->save();
+                }
             }
             \DB::commit();
             $response = [

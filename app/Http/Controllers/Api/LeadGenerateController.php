@@ -317,10 +317,10 @@ class LeadGenerateController extends Controller
             foreach ($request->material_product_data as $data){
                 LeadProduct::firstOrCreate([
                     'lead_id' => $lead->id,
-                    'product_id' => $data->product_id,
-                    'category' => $data->category,
-                    'type' => $data->type,
-                ],['quantity' => $request->quantity]);
+                    'product_id' => $data['product_id'],
+                    'category' => $data['category'],
+                    'type' => $data['type'],
+                ],['quantity' => $request['quantity']]);
             }
         }
 

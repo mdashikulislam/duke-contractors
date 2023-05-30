@@ -144,6 +144,9 @@ class LeadGenerateController extends Controller
             $s->with(['item'=>function($p) use($companyId){
                 $p->where('company_id',$companyId);
             }]);
+            $s->whereHas('item',function($p) use($companyId){
+                $p->where('company_id',$companyId);
+            });
         }])
             ->whereHas('products',function ($s) use($companyId){
                 $s->whereHas('item',function($p) use($companyId){

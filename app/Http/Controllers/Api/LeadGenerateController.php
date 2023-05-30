@@ -320,7 +320,7 @@ class LeadGenerateController extends Controller
                     'product_id' => $data['product_id'],
                     'category' => $data['category'],
                     'type' => $data['type'],
-                ],['quantity' => $request['quantity']]);
+                ],['quantity' => $data['quantity']]);
             }
         }
 

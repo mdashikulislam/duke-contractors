@@ -302,7 +302,7 @@ class LeadGenerateController extends Controller
             ];
             return response()->json($response);
         }
-        $lead = Lead::where('id',$id)->first();
+        $lead = Lead::where('id',$request->lead_id)->first();
         if (empty($lead)){
             return response()->json([
                 'status' => false,

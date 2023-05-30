@@ -318,7 +318,7 @@ class LeadGenerateController extends Controller
         $roofType->save();
         if (!empty($request->material_product_data)){
             foreach ($request->material_product_data as $data){
-                LeadProduct::firstOrCreate([
+                LeadProduct::updateOrCreate([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'category' => $data['category'],

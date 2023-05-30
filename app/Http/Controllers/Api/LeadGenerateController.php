@@ -277,4 +277,43 @@ class LeadGenerateController extends Controller
         }
         return response()->json($response);
     }
+
+    public function editLeadDetails($id,Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'company_id'=> ['required','numeric','exists:\App\Models\Company,id'],
+            'material_product_data'=>['required','array'],
+            'material_product_data.*.product_id'=>['required','numeric'],
+            'material_product_data.*.quantity'=>['required','numeric'],
+            'material_product_data.*.category'=>['required'],
+            'material_product_data.*.type'=>['required'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $lead = Lead::where('id',$id)->first();
+        if (empty($lead)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Lead not found',
+                'data' => null
+            ]);
+        }
+
+
+
+
+
+    }
 }

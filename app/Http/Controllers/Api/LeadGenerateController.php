@@ -305,6 +305,11 @@ class LeadGenerateController extends Controller
             'other_product_data.*.product_id'=>['required','numeric'],
             'other_product_data.*.quantity'=>['required','numeric'],
             'other_product_data.*.type'=>['required','string'],
+            'miscellaneous'=>['nullable','between:0,100'],
+            'desire_profit'=>['nullable','between:0,100'],
+            'seller_commission'=>['nullable','between:0,100'],
+            'office_commission'=>['nullable','between:0,100'],
+            'final_contract_price'=>['nullable','string'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -328,6 +333,11 @@ class LeadGenerateController extends Controller
             ]);
         }
         $roofType = RoofType::where('lead_id',$lead->id)->first();
+        $roofType->miscellaneous = $request->miscellaneous;
+        $roofType->desire_profit = $request->company_id;
+        $roofType->seller_commission = $request->seller_commission;
+        $roofType->office_commission = $request->office_commission;
+        $roofType->final_contract_price = $request->office_commission;
         $roofType->company_id = $request->company_id;
         $roofType->save();
         if (!empty($request->material_product_data)){

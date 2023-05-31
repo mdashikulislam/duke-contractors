@@ -116,7 +116,7 @@ class LeadGenerateController extends Controller
 
     public function runEstimateDetails($leadId,Request $request)
     {
-        $lead = Lead::where('id',$leadId)->first();
+        $lead = Lead::with('cityOfPermit')->whereHas('cityOfPermit')->where('id',$leadId)->first();
         if (empty($lead)){
             return response()->json([
                 'status' => false,
@@ -392,9 +392,6 @@ class LeadGenerateController extends Controller
                     ->where('lead_id',$lead->id)->get();
                 $result[$company->id] = $materialProduct;
             }
-
-
-            return $result;
 
         }
     }

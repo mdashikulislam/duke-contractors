@@ -114,7 +114,7 @@ class LeadGenerateController extends Controller
 
     }
 
-    public function runEstimateDetails($leadId)
+    public function runEstimateDetails($leadId,Request $request)
     {
         $lead = Lead::where('id',$leadId)->first();
         if (empty($lead)){
@@ -124,21 +124,20 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-        $roofType = RoofType::where('lead_id',$leadId)->first();
-        if (empty($roofType)){
-            return response()->json([
-                'status' => false,
-                'message' => 'You need to run estimate first',
-                'data' => null
-            ]);
+        $companyId = 0;
+        if ($request->company_id && intval($request->company_id)){
+            $companyId = $request->company_id;
+        }else{
+            $roofType = RoofType::where('lead_id',$leadId)->first();
+            if (empty($roofType)){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You need to run estimate first',
+                    'data' => null
+                ]);
+            }
+            $companyId = $roofType->company_id;
         }
-        $companyId = $roofType->company_id;
-
-//        $leadProduct = LeadProduct::selectRaw('lead_products.*')
-//            ->join('products','products.id','=','lead_products.product_id')
-//            ->join('')
-//            ->where('lead_products.lead_id',$leadId)->get();
-
 
         $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
             $s->with(['item'=>function($p) use($companyId){

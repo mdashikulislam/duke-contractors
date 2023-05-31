@@ -380,6 +380,15 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
+
+        $roofType = RoofType::where('lead_id',$lead->id)->first();
+        if (empty($roofType)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Roof type not found',
+                'data' => null
+            ]);
+        }
         $result = [];
         $companies = Company::all();
         if (!empty($companies)){
@@ -388,6 +397,7 @@ class LeadGenerateController extends Controller
                 $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
                     $s->with(['item'=>function($p) use($companyId){
                         $p->where('company_id',$companyId);
+                        $p->with('company');
                     }]);
                     $s->whereHas('item',function($p) use($companyId){
                         $p->where('company_id',$companyId);
@@ -402,12 +412,35 @@ class LeadGenerateController extends Controller
                     ->where('lead_id',$lead->id)->get();
                 $result[$company->id] = $materialProduct;
             }
-            foreach ($result as $rs){
+            $final = [];
+            foreach ($result as $key => $rs){
+                $total = 0;
                 foreach ($rs as $r){
-                    $total = (int)$r->quantity * (float)$r['products']['item']['unit_price'];
-                    return $total;
+                    $cost = (int)$r->quantity * (float)$r['products']['item']['unit_price'];
+                    $total += $cost +  ($cost * (float) $roofType->tax) / 100;
                 }
+                $final[$key] = $total;
             }
+            $minValue = min($final);
+            $minKey = array_search($minValue, $final);
+            $finalCompany = Company::where('id',$minKey)->first();
+            return response()->json([
+                'status' => true,
+                'message' => '',
+                'data' => [
+                    'company'=>[
+                        'id'=>$finalCompany->id,
+                        'name'=>$finalCompany->name,
+                        'total'=>$minValue
+                    ]
+                ]
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'No company found',
+                'data' => null
+            ]);
         }
     }
 }

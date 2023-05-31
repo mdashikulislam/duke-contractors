@@ -157,15 +157,11 @@ class LeadGenerateController extends Controller
             ->where('lead_id',$leadId)->get();
 
         $otherProduct = LeadProduct::with(['products'=>function($s) use($companyId){
-            $s->with(['item'=>function($p) use($companyId){
-
-            }]);
-            $s->whereHas('item',function($p) use($companyId){
-            });
+            $s->with('item');
+            $s->whereHas('item');
         }])
             ->whereHas('products',function ($s) use($companyId){
-                $s->whereHas('item',function($p) use($companyId){
-                });
+                $s->whereHas('item');
             })
             ->where('type','!=','Material')
             ->where('lead_id',$leadId)->get();

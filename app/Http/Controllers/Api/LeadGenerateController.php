@@ -125,17 +125,17 @@ class LeadGenerateController extends Controller
             ]);
         }
         $companyId = 0;
+        $roofType = RoofType::where('lead_id',$leadId)->first();
+        if (empty($roofType)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You need to run estimate first',
+                'data' => null
+            ]);
+        }
         if ($request->company_id && intval($request->company_id)){
             $companyId = $request->company_id;
         }else{
-            $roofType = RoofType::where('lead_id',$leadId)->first();
-            if (empty($roofType)){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'You need to run estimate first',
-                    'data' => null
-                ]);
-            }
             $companyId = $roofType->company_id;
         }
 
@@ -392,7 +392,9 @@ class LeadGenerateController extends Controller
                     ->where('lead_id',$lead->id)->get();
                 $result[$company->id] = $materialProduct;
             }
+            foreach ($result as $rs){
 
+            }
         }
     }
 }

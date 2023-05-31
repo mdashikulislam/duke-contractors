@@ -168,6 +168,7 @@ class LeadGenerateController extends Controller
             'status' => true,
             'message' => '',
             'data' => [
+                'lead'=>$lead,
                 'roofType'=>$roofType,
                 'materialProduct'=>$materialProduct,
                 'otherProducts'=>$otherProduct
@@ -371,7 +372,7 @@ class LeadGenerateController extends Controller
         }
         $result = [];
         $companies = Company::all();
-        if (!empty($company)){
+        if (!empty($companies)){
             foreach ($companies as $company){
                 $companyId = $company->id;
                 $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
@@ -389,10 +390,12 @@ class LeadGenerateController extends Controller
                     })
                     ->where('type','Material')
                     ->where('lead_id',$lead->id)->get();
-                $result[$company->name] = $materialProduct;
+                $result[$company->id] = $materialProduct;
             }
-        }
-        return $result;
 
+
+            return $result;
+
+        }
     }
 }

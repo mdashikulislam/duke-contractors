@@ -369,6 +369,30 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
+        $result = [];
+        $companies = Company::all();
+        if (!empty($company)){
+            foreach ($companies as $company){
+                $companyId = $company->id;
+                $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
+                    $s->with(['item'=>function($p) use($companyId){
+                        $p->where('company_id',$companyId);
+                    }]);
+                    $s->whereHas('item',function($p) use($companyId){
+                        $p->where('company_id',$companyId);
+                    });
+                }])
+                    ->whereHas('products',function ($s) use($companyId){
+                        $s->whereHas('item',function($p) use($companyId){
+                            $p->where('company_id',$companyId);
+                        });
+                    })
+                    ->where('type','Material')
+                    ->where('lead_id',$lead->id)->get();
+                $result[$company->name] = $materialProduct;
+            }
+        }
+        return $result;
 
     }
 }

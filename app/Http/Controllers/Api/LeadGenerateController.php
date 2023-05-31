@@ -403,8 +403,10 @@ class LeadGenerateController extends Controller
                 $result[$company->id] = $materialProduct;
             }
             foreach ($result as $rs){
-                $total = $rs;
-                dd($total);
+                foreach ($rs as $r){
+                    $total = (int)$r->quantity * (float)$r['products']['item']['unit_price'];
+                    return $total;
+                }
             }
         }
     }

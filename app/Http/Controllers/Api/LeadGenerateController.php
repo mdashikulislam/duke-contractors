@@ -337,7 +337,7 @@ class LeadGenerateController extends Controller
         $roofType->desire_profit = $request->company_id;
         $roofType->seller_commission = $request->seller_commission;
         $roofType->office_commission = $request->office_commission;
-        $roofType->final_contract_price = $request->office_commission;
+        $roofType->final_contract_price = $request->final_contract_price;
         $roofType->company_id = $request->company_id;
         $roofType->save();
         if (!empty($request->material_product_data)){
@@ -403,7 +403,8 @@ class LeadGenerateController extends Controller
                 $result[$company->id] = $materialProduct;
             }
             foreach ($result as $rs){
-
+                $total = $rs;
+                dd($total);
             }
         }
     }

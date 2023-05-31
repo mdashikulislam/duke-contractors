@@ -352,5 +352,23 @@ class LeadGenerateController extends Controller
                 ]);
             }
         }
+        return response()->json([
+            'status' => true,
+            'message' => 'Update successful',
+            'data' => null
+        ]);
+    }
+
+    public function lowPriceCompany($id)
+    {
+        $lead = Lead::where('id',$id)->first();
+        if (empty($lead)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Lead not found',
+                'data' => null
+            ]);
+        }
+
     }
 }

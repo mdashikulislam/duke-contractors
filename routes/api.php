@@ -96,6 +96,7 @@ Route::middleware('auth:api')->group(function (){
        Route::post('edit-run-estimate/{id}','editRunEstimate');
        Route::post('add-lead-price','addLeadPrice');
        Route::post('edit-lead-details','editLeadDetails');
+       Route::get('low-price-company/{id}','lowPriceCompany');
     });
     Route::controller(CityController::class)->group(function (){
        Route::get('get-city-list','index');

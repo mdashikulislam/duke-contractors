@@ -336,7 +336,6 @@ class LeadGenerateController extends Controller
                 LeadProduct::updateOrCreate([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
-                    'category' => $data['category'],
                     'type' => $data['type'],
                 ],['quantity' => $data['quantity']]);
             }

@@ -286,11 +286,14 @@ class LeadGenerateController extends Controller
         $validator = \Validator::make($request->all(),[
             'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
             'company_id'=> ['required','numeric','exists:\App\Models\Company,id'],
-            'material_product_data'=>['required','array'],
+            'material_product_data'=>['nullable','array'],
             'material_product_data.*.product_id'=>['required','numeric'],
             'material_product_data.*.quantity'=>['required','numeric'],
             'material_product_data.*.category'=>['required'],
-            'material_product_data.*.type'=>['required'],
+            'other_product_data.'=>['nullable','array'],
+            'other_product_data.*.product_id'=>['required','numeric'],
+            'other_product_data.*.quantity'=>['required','numeric'],
+            'other_product_data.*.type'=>['required','numeric'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -317,6 +320,18 @@ class LeadGenerateController extends Controller
         $roofType->company_id = $request->company_id;
         $roofType->save();
         if (!empty($request->material_product_data)){
+            LeadProduct::where('lead_id',$lead->id)->where('type','Material')->delete();
+            foreach ($request->material_product_data as $data){
+                LeadProduct::updateOrCreate([
+                    'lead_id' => $lead->id,
+                    'product_id' => $data['product_id'],
+                    'category' => $data['category'],
+                    'type' => 'Material',
+                ],['quantity' => $data['quantity']]);
+            }
+        }
+        if (!empty($request->material_product_data)){
+            LeadProduct::where('lead_id',$lead->id)->where('type','!=','Material')->delete();
             foreach ($request->material_product_data as $data){
                 LeadProduct::updateOrCreate([
                     'lead_id' => $lead->id,
@@ -326,6 +341,5 @@ class LeadGenerateController extends Controller
                 ],['quantity' => $data['quantity']]);
             }
         }
-
     }
 }

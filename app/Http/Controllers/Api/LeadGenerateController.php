@@ -322,22 +322,24 @@ class LeadGenerateController extends Controller
         if (!empty($request->material_product_data)){
             LeadProduct::where('lead_id',$lead->id)->where('type','Material')->delete();
             foreach ($request->material_product_data as $data){
-                LeadProduct::updateOrCreate([
+                LeadProduct::Labor([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'category' => $data['category'],
                     'type' => 'Material',
-                ],['quantity' => $data['quantity']]);
+                    'quantity' => $data['quantity']
+                ]);
             }
         }
         if (!empty($request->other_product_data)){
             LeadProduct::where('lead_id',$lead->id)->where('type','!=','Material')->delete();
             foreach ($request->other_product_data as $data){
-                LeadProduct::updateOrCreate([
+                LeadProduct::create([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'type' => $data['type'],
-                ],['quantity' => $data['quantity']]);
+                    'quantity' => $data['quantity']
+                ]);
             }
         }
     }

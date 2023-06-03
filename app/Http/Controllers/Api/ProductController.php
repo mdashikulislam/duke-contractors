@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\CompanyProduct;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -350,7 +351,8 @@ class ProductController extends Controller
     {
         $validator = \Validator::make($request->all(),[
             'category'=>['required','array'],
-            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)]
+            'category.*'=>['in:'.implode(',',PRODUCT_CATEGORY)],
+            'company_id'=>['nullable','numeric','exists:\App\Models\Company,id']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -367,21 +369,34 @@ class ProductController extends Controller
         }
         $category = $request->category;
         $dataValue = [];
+        $company = 0;
+        if ($request->company_id){
+            $company = $request->company_id;
+        }else{
+            $company = Company::where('is_default',1)->first()->id;
+        }
         foreach ($category as $cat){
             $plywood = Product::whereHas('categories',function ($q) use ($cat){
                 $q->where('name',$cat);
-            })
+            })->with(['item'=>function($q) use($company){
+                $q->where('company_id',$company);
+            }])
                 ->where('is_default',1)
-                ->where('type','Material')->where('wood_type','Plywood')->get();
+                ->where('type','Material')
+                ->where('wood_type','Plywood')->get();
 
             $fasica = Product::whereHas('categories',function ($q) use ($cat){
                 $q->where('name',$cat);
-            })
+            })->with(['item'=>function($q) use($company){
+                $q->where('company_id',$company);
+            }])
                 ->where('is_default',1)
                 ->where('type','Material')->where('wood_type','Fasica')->get();
             $none = Product::whereHas('categories',function ($q) use ($cat){
                 $q->where('name',$cat);
-            })
+            })->with(['item'=>function($q) use($company){
+                $q->where('company_id',$company);
+            }])
                 ->where('is_default',1)
                 ->where('type','Material')->where('wood_type','None')->get();
 

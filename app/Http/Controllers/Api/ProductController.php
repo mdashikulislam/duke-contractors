@@ -291,7 +291,7 @@ class ProductController extends Controller
             ->whereHas('item',function ($s) use($roofType){
                 $s->where('company_id',$roofType->company_id);
             })
-            ->with(['category'=>function($s) use($category){
+            ->with(['categories'=>function($s) use($category){
                 $s->whereIn('name',$category);
             }])
             ->whereHas('categories',function ($s) use($category){

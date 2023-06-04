@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CompanyProduct;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\RoofType;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -99,7 +100,6 @@ class ProductController extends Controller
             'product_data'=>['required','array'],
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
-
         ];
         if ($request->tyep == 'Material'){
             $rules['category']=['required','max:255','array'];
@@ -239,6 +239,86 @@ class ProductController extends Controller
                 'data'=>null
             ]);
         }
+    }
+
+    public function productList(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id']
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+
+        $roofType = RoofType::where('lead_id',$request->lead_id)->first();
+        if(empty($roofType)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not complete run estimate',
+                'data' => null
+            ]);
+        }
+        $category = [];
+        if ($roofType->tile == 1){
+            $category[] = 'Tile';
+        }
+        if ($roofType->metal == 1){
+            $category[] = 'Metal';
+        }
+        if ($roofType->shingle == 1){
+            $category[] = 'Shingle';
+        }
+        if ($roofType->flat == 1){
+            $category[] = 'Flat';
+        }
+        if ($roofType->tpo == 1){
+            $category[] = 'Tpo';
+        }
+        $default = [];
+        $material = [];
+        $materialProduct = Product::where('type','Material')
+            ->with(['item'=>function($s) use($roofType){
+                $s->where('company_id',$roofType->company_id);
+            }])
+            ->whereHas('item',function ($s) use($roofType){
+                $s->where('company_id',$roofType->company_id);
+            })
+            ->whereHas('categories',function ($s) use($category){
+                $s->whereIn('name',$category);
+            })
+            ->get();
+        if (!empty($materialProduct)){
+            foreach ($materialProduct as $product){
+                if ($product->is_default == 1){
+                    $default[] = $product;
+                }else{
+                    $material[] = $product;
+                }
+            }
+        }
+        $otherProducts = Product::with('item')
+            ->whereHas('item')
+            ->where('type','!=','Material')
+            ->get();
+        return response()->json([
+           'status'=>true,
+            'message'=>'',
+           'data'=>[
+               'default'=>$default,
+                'materialProduct'=>$material,
+                'otherProducts'=>$otherProducts
+           ]
+        ]);
     }
     public function edit($id,Request $request)
     {

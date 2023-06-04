@@ -284,7 +284,21 @@ class ProductController extends Controller
         if ($roofType->tpo == 1){
             $category[] = 'Tpo';
         }
-        $default = [];
+        $defaultProduct = Product::where('type','Material')
+            ->with(['item'=>function($s) use($roofType){
+                $s->where('company_id',$roofType->company_id);
+            }])
+            ->whereHas('item',function ($s) use($roofType){
+                $s->where('company_id',$roofType->company_id);
+            })
+            ->with(['category'=>function($s) use($category){
+                $s->whereIn('name',$category);
+            }])
+            ->whereHas('categories',function ($s) use($category){
+                $s->whereIn('name',$category);
+            })
+            ->where('is_default',1)
+            ->get();
         $material = [];
         if ($category){
             foreach ($category as $cs){
@@ -301,14 +315,11 @@ class ProductController extends Controller
                     ->whereHas('categories',function ($s) use($cs){
                         $s->where('name',$cs);
                     })
+                    ->where('is_default',0)
                     ->get();
                 if (!empty($materialProduct)){
                     foreach ($materialProduct as $product){
-                        if ($product->is_default == 1){
-                            $default[] = $product;
-                        }else{
-                            $material[] = $product;
-                        }
+                        $material[] = $product;
                     }
                 }
             }
@@ -321,7 +332,7 @@ class ProductController extends Controller
            'status'=>true,
             'message'=>'',
            'data'=>[
-               'default'=>$default,
+               'default'=>$defaultProduct,
                 'materialProduct'=>$material,
                 'otherProducts'=>$otherProducts
            ]

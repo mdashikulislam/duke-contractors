@@ -284,20 +284,21 @@ class ProductController extends Controller
         if ($roofType->tpo == 1){
             $category[] = 'Tpo';
         }
-        $defaultProduct = Product::where('type','Material')
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+            ->leftJoin('lead_products',function ($s){
+                $s->on('lead_products.product_id','=','products.id');
+            })
+            ->where('products.type','Material')
             ->with(['item'=>function($s) use($roofType){
                 $s->where('company_id',$roofType->company_id);
             }])
             ->whereHas('item',function ($s) use($roofType){
                 $s->where('company_id',$roofType->company_id);
             })
-            ->with(['categories'=>function($s) use($category){
-                $s->whereIn('name',$category);
-            }])
             ->whereHas('categories',function ($s) use($category){
                 $s->whereIn('name',$category);
             })
-            ->where('is_default',1)
+            ->where('products.is_default',1)
             ->get();
         $material = [];
         if ($category){

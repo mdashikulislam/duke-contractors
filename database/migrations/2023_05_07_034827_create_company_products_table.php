@@ -11,7 +11,6 @@ return new class extends Migration {
             $table->id();
             $table->integer('company_id')->default(0);
             $table->integer('product_id')->default(0);
-            $table->integer('dim_covers')->nullable();
             $table->decimal('unit_price',10,2)->default(0);
             $table->timestamps();
         });

@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->integer('quantity')->default(0);
             $table->string('category',20)->nullable();
             $table->string('type',20)->nullable();
-            $table->decimal('cost',10,2)->default(0);
             $table->timestamps();
         });
     }

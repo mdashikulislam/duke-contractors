@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->string('product_categoty')->nullable();
             $table->tinyInteger('is_default')->default(0);
             $table->enum('wood_type',['None','Plywood','Fasica'])->nullable();
+            $table->string('formula')->nullable();
+            $table->integer('dim_covers')->nullable();
             $table->timestamps();
         });
     }

@@ -95,7 +95,9 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
-            'formula'=>['nullable','string']
+            'formula'=>['nullable','string'],
+            'dim_covers'=>['nullable','numeric'],
+
         ];
         if ($request->tyep == 'Material'){
             $rules['category']=['required','max:255','array'];
@@ -123,11 +125,13 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
-            $product->formula = $request->formula;
+
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
                 $product->product_categoty = $request->own_category;
+                $product->dim_covers = $request->dim_covers;
+                $product->formula = $request->formula;
             }
             $product->save();
             foreach ($request->product_data as $data){
@@ -135,10 +139,8 @@ class ProductController extends Controller
                 $companyProduct->product_id = $product->id;
                 if ($request->type =='Material'){
                     $companyProduct->company_id = @$data['company_id'] ?? 0;
-                    $companyProduct->dim_covers = @$data['dim_covers'] ?? null;
                 }else{
                     $companyProduct->company_id =  0;
-                    $companyProduct->dim_covers = null;
                 }
                 $companyProduct->unit_price = $data['unit_price'];
                 $companyProduct->save();
@@ -251,7 +253,8 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
-            'formula'=>['nullable','string']
+            'formula'=>['nullable','string'],
+            'dim_covers'=>['nullable','numeric']
         ];
         if ($request->tyep == 'Material'){
             $rules['category']=['required','max:255','array'];
@@ -279,11 +282,12 @@ class ProductController extends Controller
         try {
             $product->name = $request->name;
             $product->type = $request->type;
-            $product->formula = $request->formula;
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
                 $product->product_categoty = $request->own_category;
+                $product->dim_covers = $request->dim_covers;
+                $product->formula = $request->formula;
             }
             $product->save();
             foreach ($request->product_data as $data){
@@ -291,10 +295,8 @@ class ProductController extends Controller
                 $companyProduct->product_id = $product->id;
                 if ($request->type =='Material'){
                     $companyProduct->company_id = @$data['company_id'] ?? 0;
-                    $companyProduct->dim_covers = @$data['dim_covers'] ?? null;
                 }else{
                     $companyProduct->company_id =  0;
-                    $companyProduct->dim_covers = null;
                 }
                 $companyProduct->unit_price = $data['unit_price'];
                 $companyProduct->save();

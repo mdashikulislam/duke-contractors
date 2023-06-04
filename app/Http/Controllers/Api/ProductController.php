@@ -284,7 +284,7 @@ class ProductController extends Controller
         if ($roofType->tpo == 1){
             $category[] = 'Tpo';
         }
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
             ->leftJoin('lead_products',function ($s){
                 $s->on('lead_products.product_id','=','products.id');
             })

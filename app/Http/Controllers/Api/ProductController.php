@@ -68,9 +68,11 @@ class ProductController extends Controller
                 'data' => null
             ]);
         }
-        $product = Product::with('categories')->whereHas('categories');
+        $product = Product::where('id',$id);
         if ($exist->type == 'Material'){
-            $product =  $product->with(['items'=>function($s){
+            $product =  $product->with('categories')
+                ->whereHas('categories')
+                ->with(['items'=>function($s){
                 $s->with('company');
                 $s->whereHas('company');
             }])->whereHas('items',function ($s){
@@ -80,7 +82,7 @@ class ProductController extends Controller
         }else{
             $product =  $product->with('item')->whereHas('item');
         }
-        $product = $product->where('id',$id)->first();
+        $product = $product->first();
         return response()->json([
             'status'=>true,
             'message'=>'',

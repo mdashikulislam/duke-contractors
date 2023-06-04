@@ -94,7 +94,8 @@ class ProductController extends Controller
         $rules = [
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
-            'product_data'=>['required','array']
+            'product_data'=>['required','array'],
+            'formula'=>['nullable','string']
         ];
         if ($request->tyep == 'Material'){
             $rules['category']=['required','max:255','array'];
@@ -122,6 +123,7 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
+            $product->formula = $request->formula;
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
@@ -171,7 +173,7 @@ class ProductController extends Controller
     {
         $rules = [
             'keyword'=>['required','max:255'],
-            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)]
+            'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
         ];
         if ($request->type == 'Material'){
             $rules['category'] = ['required','max:255','in:'.implode(',',PRODUCT_CATEGORY)];
@@ -248,7 +250,8 @@ class ProductController extends Controller
         $rules = [
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
-            'product_data'=>['required','array']
+            'product_data'=>['required','array'],
+            'formula'=>['nullable','string']
         ];
         if ($request->tyep == 'Material'){
             $rules['category']=['required','max:255','array'];
@@ -276,6 +279,7 @@ class ProductController extends Controller
         try {
             $product->name = $request->name;
             $product->type = $request->type;
+            $product->formula = $request->formula;
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';

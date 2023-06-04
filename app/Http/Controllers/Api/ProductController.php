@@ -286,24 +286,30 @@ class ProductController extends Controller
         }
         $default = [];
         $material = [];
-        $materialProduct = Product::where('type','Material')
-            ->with(['item'=>function($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
-            }])
-            ->whereHas('item',function ($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
-            })
-            ->with('categories')
-            ->whereHas('categories',function ($s) use($category){
-                $s->whereIn('name',$category);
-            })
-            ->get();
-        if (!empty($materialProduct)){
-            foreach ($materialProduct as $product){
-                if ($product->is_default == 1){
-                    $default[] = $product;
-                }else{
-                    $material[] = $product;
+        if ($category){
+            foreach ($category as $cs){
+                $materialProduct = Product::where('type','Material')
+                    ->with(['item'=>function($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    }])
+                    ->whereHas('item',function ($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    })
+                    ->with(['categories'=>function($s) use($cs){
+                        $s->where('name',$cs);
+                    }])
+                    ->whereHas('categories',function ($s) use($cs){
+                        $s->where('name',$cs);
+                    })
+                    ->get();
+                if (!empty($materialProduct)){
+                    foreach ($materialProduct as $product){
+                        if ($product->is_default == 1){
+                            $default[] = $product;
+                        }else{
+                            $material[] = $product;
+                        }
+                    }
                 }
             }
         }

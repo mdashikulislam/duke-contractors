@@ -293,6 +293,7 @@ class ProductController extends Controller
             ->whereHas('item',function ($s) use($roofType){
                 $s->where('company_id',$roofType->company_id);
             })
+            ->with('categories')
             ->whereHas('categories',function ($s) use($category){
                 $s->whereIn('name',$category);
             })

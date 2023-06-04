@@ -93,7 +93,6 @@ class LeadGenerateController extends Controller
                 $leadProduct->quantity = $data['quantity'];
                 $leadProduct->category = $data['category'];
                 $leadProduct->type = "Material";
-                $leadProduct->cost = 0;
                 $leadProduct->save();
             }
             Lead::where('id',$request->lead_id)->update(['is_estimate'=>1]);

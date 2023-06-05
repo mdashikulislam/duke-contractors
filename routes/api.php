@@ -88,7 +88,7 @@ Route::middleware('auth:api')->group(function (){
             Route::post('edit-product/{id}','edit');
             Route::post('delete-product/{id}','delete');
         });
-        Route::post('get-default-product','getDefaultProduct');
+        Route::get('get-default-product','getDefaultProduct');
         Route::get('get-product-own-category-list','productOwnCategory');
     });
     Route::controller(LeadGenerateController::class)->group(function (){

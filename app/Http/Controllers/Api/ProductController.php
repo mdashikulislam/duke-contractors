@@ -481,17 +481,23 @@ class ProductController extends Controller
         }else{
             $company = Company::where('is_default',1)->first()->id;
         }
-        $plywood = Product::with(['item'=>function($q) use($company){
+        $plywood = Product::selectRaw('products.*,lead_products.quantity')->with(['item'=>function($q) use($company){
             $q->where('company_id',$company);
         }])
+        ->leftJoin('lead_products',function ($s) use($leadId){
+            $s->on('lead_products.product_id','=','products.id');
+            $s->where('lead_products.lead_id',$leadId);
+        })
             ->whereHas('item',function ($q) use($company){
                 $q->where('company_id',$company);
             })
-            ->where('is_default',1)
-            ->where('type','Material')
-            ->where('wood_type','Plywood')->get();
+            ->where('products.is_default',1)
+            ->where('products.type','Material')
+            ->where('products.wood_type','Plywood')
+            ->groupBy('products.id')
+            ->get();
 
-        $fasica = Product::selectRaw('products.*,IF(COUNT(lead_products.id) > 0, "Yes", "No") as selected')
+        $fasica = Product::selectRaw('products.*,IF(COUNT(lead_products.id) > 0, "Yes", "No") as selected,lead_products.quantity')
         ->leftJoin('lead_products',function ($s) use($leadId){
             $s->on('lead_products.product_id','=','products.id');
             $s->where('lead_products.lead_id',$leadId);
@@ -502,18 +508,27 @@ class ProductController extends Controller
             ->whereHas('item',function ($q) use($company){
                 $q->where('company_id',$company);
             })
+
         ->where('products.is_default',1)
         ->where('products.type','Material')
-        ->where('products.wood_type','Fasica')->get();
-        $none = Product::with(['item'=>function($q) use($company){
+        ->where('products.wood_type','Fasica')
+            ->groupBy('products.id')
+            ->get();
+        $none = Product::selectRaw('products.*,lead_products.quantity')->with(['item'=>function($q) use($company){
             $q->where('company_id',$company);
         }])
+        ->leftJoin('lead_products',function ($s) use($leadId){
+            $s->on('lead_products.product_id','=','products.id');
+            $s->where('lead_products.lead_id',$leadId);
+        })
         ->whereHas('item',function ($q) use($company){
             $q->where('company_id',$company);
         })
-        ->where('is_default',1)
-        ->where('type','Material')
-            ->where('wood_type','None')->get();
+        ->where('products.is_default',1)
+        ->where('products.type','Material')
+        ->where('products.wood_type','None')
+        ->groupBy('products.id')
+        ->get();
         $dataValue = [
             'plywood'=>$plywood,
             'fasica'=>$fasica,

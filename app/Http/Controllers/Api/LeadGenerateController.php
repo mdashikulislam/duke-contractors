@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadProduct;
+use App\Models\Product;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
 
@@ -369,77 +370,79 @@ class LeadGenerateController extends Controller
         ]);
     }
 
-    public function lowPriceCompany($id)
+    public function lowPriceCompany(Request $request)
     {
-        $lead = Lead::where('id',$id)->first();
-        if (empty($lead)){
-            return response()->json([
+
+        $validator = \Validator::make($request->all(),[
+            'product_data'=>['required','array'],
+            'product_data.*.id'=> ['required','numeric','exists:\App\Models\Product,id'],
+            'product_data.*.quantity'=> ['required','numeric'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
                 'status' => false,
-                'message' => 'Lead not found',
+                'message' => $errors,
                 'data' => null
-            ]);
+            ];
+            return response()->json($response);
         }
 
-        $roofType = RoofType::where('lead_id',$lead->id)->first();
-        if (empty($roofType)){
-            return response()->json([
-                'status' => false,
-                'message' => 'Roof type not found',
-                'data' => null
-            ]);
-        }
-        $result = [];
+        $product_data = $request->product_data;
         $companies = Company::all();
-        if (!empty($companies)){
-            foreach ($companies as $company){
-                $companyId = $company->id;
-                $materialProduct = LeadProduct::with(['products'=>function($s) use($companyId){
-                    $s->with(['item'=>function($p) use($companyId){
-                        $p->where('company_id',$companyId);
-                        $p->with('company');
-                    }]);
-                    $s->whereHas('item',function($p) use($companyId){
-                        $p->where('company_id',$companyId);
-                    });
-                }])
-                    ->whereHas('products',function ($s) use($companyId){
-                        $s->whereHas('item',function($p) use($companyId){
-                            $p->where('company_id',$companyId);
-                        });
-                    })
-                    ->where('type','Material')
-                    ->where('lead_id',$lead->id)->get();
-                $result[$company->id] = $materialProduct;
-            }
-            $final = [];
-            foreach ($result as $key => $rs){
-                $total = 0;
-                foreach ($rs as $r){
-                    $cost = (int)$r->quantity * (float)$r['products']['item']['unit_price'];
-                    $total += $cost +  ($cost * (float) $roofType->tax) / 100;
-                }
-                $final[$key] = $total;
-            }
-            $minValue = min($final);
-            $minKey = array_search($minValue, $final);
-            $finalCompany = Company::where('id',$minKey)->first();
-            return response()->json([
-                'status' => true,
-                'message' => '',
-                'data' => [
-                    'company'=>[
-                        'id'=>$finalCompany->id,
-                        'name'=>$finalCompany->name,
-                        'total'=>$minValue
-                    ]
-                ]
-            ]);
-        }else{
+        if (empty($companies)){
             return response()->json([
                 'status' => false,
                 'message' => 'No company found',
                 'data' => null
             ]);
         }
+        $total = [];
+        foreach ($product_data as $key => $data){
+            if (!empty($companies)){
+                $companyWise = [];
+                foreach ($companies as $company){
+                    $companyId = $company->id;
+                    $materialProduct = Product::where('type','Material')
+                        ->with(['item'=>function($p) use($companyId){
+                            $p->where('company_id',$companyId);
+                            $p->with('company');
+                        }])
+                        ->whereHas('item',function ($p) use($companyId){
+                            $p->where('company_id',$companyId);
+                        })
+                        ->where('id',$data['id'])
+                        ->where('type','Material')->first();
+                    $cost = (int)$data['quantity'] * (float)@$materialProduct->item->unit_price ?? 0;
+                    $companyWise[$companyId] = $cost;
+                }
+                $total[] = $companyWise;
+            }
+        }
+        $arrSum = [];
+        if (!empty($total)){
+            foreach ($companies as $cp){
+                $arrSum[$cp->id] = array_sum(array_column($total, $cp->id));
+            }
+        }
+        $minValue = min($arrSum);
+        $minKey = array_search($minValue, $arrSum);
+        $finalCompany = Company::where('id',$minKey)->first();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'company'=>[
+                    'id'=>$finalCompany->id,
+                    'name'=>$finalCompany->name,
+                    'total'=>$minValue
+                ]
+            ]
+        ]);
+
     }
 }

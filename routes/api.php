@@ -82,6 +82,7 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-product','index');
         Route::get('product-details/{id}','productDetails');
         Route::get('search-product','searchProduct');
+        Route::get('product-list','productList');
         Route::middleware('is_admin')->group(function (){
             Route::post('add-product','store');
             Route::post('edit-product/{id}','edit');

@@ -484,6 +484,9 @@ class ProductController extends Controller
         $plywood = Product::with(['item'=>function($q) use($company){
             $q->where('company_id',$company);
         }])
+            ->whereHas('item',function ($q) use($company){
+                $q->where('company_id',$company);
+            })
             ->where('is_default',1)
             ->where('type','Material')
             ->where('wood_type','Plywood')->get();
@@ -496,14 +499,21 @@ class ProductController extends Controller
             ->with(['item'=>function($q) use($company){
             $q->where('company_id',$company);
         }])
+            ->whereHas('item',function ($q) use($company){
+                $q->where('company_id',$company);
+            })
         ->where('products.is_default',1)
         ->where('products.type','Material')
         ->where('products.wood_type','Fasica')->get();
         $none = Product::with(['item'=>function($q) use($company){
             $q->where('company_id',$company);
         }])
+        ->whereHas('item',function ($q) use($company){
+            $q->where('company_id',$company);
+        })
         ->where('is_default',1)
-        ->where('type','Material')->where('wood_type','None')->get();
+        ->where('type','Material')
+            ->where('wood_type','None')->get();
         $dataValue = [
             'plywood'=>$plywood,
             'fasica'=>$fasica,

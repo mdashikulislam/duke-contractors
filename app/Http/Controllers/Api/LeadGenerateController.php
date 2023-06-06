@@ -39,7 +39,7 @@ class LeadGenerateController extends Controller
             'eagle_view'=>['required'],
             'tax'=>['required','between:0,100'],
             'product_data'=>['required','array'],
-            'product_data.*.product_id'=>['required','numeric'],
+            'product_data.*.id'=>['required','numeric'],
             'product_data.*.quantity'=>['required','numeric'],
         ]);
         if ($validator->fails()){
@@ -89,7 +89,7 @@ class LeadGenerateController extends Controller
             foreach ($request->product_data as $data){
                 $leadProduct = new LeadProduct();
                 $leadProduct->lead_id = $request->lead_id;
-                $leadProduct->product_id = $data['product_id'];
+                $leadProduct->product_id = $data['id'];
                 $leadProduct->quantity = $data['quantity'];
                 $leadProduct->type = "Material";
                 $leadProduct->save();

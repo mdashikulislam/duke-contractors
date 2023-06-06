@@ -101,12 +101,14 @@ class ProductController extends Controller
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
         ];
-        if ($request->tyep == 'Material'){
-            $rules['category']=['required','max:255','array'];
-            $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
+        if ($request->type == 'Material'){
+            $rules['is_default'] =['nullable','numeric','between:0,1'];
+            if ($request->is_default == 'No'){
+                $rules['category']=['required','max:255','array'];
+                $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
+            }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
-            $rules['is_default'] =['nullable','numeric','between:0,1'];
         }
         $validator = \Validator::make($request->all(),$rules);
         if ($validator->fails()){
@@ -148,11 +150,13 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type == 'Material'){
-                foreach ($request->category as $cat){
-                    $category = new ProductCategory();
-                    $category->product_id = $product->id;
-                    $category->name = $cat;
-                    $category->save();
+                if ($request->is_default == 'No') {
+                    foreach ($request->category as $cat) {
+                        $category = new ProductCategory();
+                        $category->product_id = $product->id;
+                        $category->name = $cat;
+                        $category->save();
+                    }
                 }
             }
             \DB::commit();
@@ -357,9 +361,11 @@ class ProductController extends Controller
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric']
         ];
-        if ($request->tyep == 'Material'){
-            $rules['category']=['required','max:255','array'];
-            $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
+        if ($request->type == 'Material'){
+            if ($request->is_default == 'No') {
+                $rules['category'] = ['required', 'max:255', 'array'];
+                $rules['category.*'] = ['in:' . implode(',', PRODUCT_CATEGORY)];
+            }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
             $rules['is_default'] =['nullable','numeric','between:0,1'];
@@ -403,12 +409,14 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type =='Material') {
-                ProductCategory::where('product_id', $id)->delete();
-                foreach ($request->category as $cat) {
-                    $category = new ProductCategory();
-                    $category->product_id = $product->id;
-                    $category->name = $cat;
-                    $category->save();
+                if ($request->is_default == 'No') {
+                    ProductCategory::where('product_id', $id)->delete();
+                    foreach ($request->category as $cat) {
+                        $category = new ProductCategory();
+                        $category->product_id = $product->id;
+                        $category->name = $cat;
+                        $category->save();
+                    }
                 }
             }
             \DB::commit();

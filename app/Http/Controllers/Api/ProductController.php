@@ -105,7 +105,8 @@ class ProductController extends Controller
             $rules['is_default'] =['nullable','numeric','between:0,1'];
             if ($request->is_default == 'No'){
                 $rules['category']=['required','max:255','array'];
-                $rules['category.*']=['in:'.implode(',',PRODUCT_CATEGORY)];
+                $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
+                $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
             }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
@@ -135,7 +136,6 @@ class ProductController extends Controller
                 $product->wood_type = $request->wood_type ?? 'None';
                 $product->product_categoty = $request->own_category;
                 $product->dim_covers = $request->dim_covers;
-                $product->formula = $request->formula;
             }
             $product->save();
             foreach ($request->product_data as $data){
@@ -154,7 +154,8 @@ class ProductController extends Controller
                     foreach ($request->category as $cat) {
                         $category = new ProductCategory();
                         $category->product_id = $product->id;
-                        $category->name = $cat;
+                        $category->name = $cat['name'];
+                        $category->formula = $cat['formula'];
                         $category->save();
                     }
                 }
@@ -363,8 +364,9 @@ class ProductController extends Controller
         ];
         if ($request->type == 'Material'){
             if ($request->is_default == 'No') {
-                $rules['category'] = ['required', 'max:255', 'array'];
-                $rules['category.*'] = ['in:' . implode(',', PRODUCT_CATEGORY)];
+                $rules['category']=['required','max:255','array'];
+                $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
+                $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
             }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
@@ -394,7 +396,6 @@ class ProductController extends Controller
                 $product->wood_type = $request->wood_type ?? 'None';
                 $product->product_categoty = $request->own_category;
                 $product->dim_covers = $request->dim_covers;
-                $product->formula = $request->formula;
             }
             $product->save();
             foreach ($request->product_data as $data){
@@ -414,7 +415,8 @@ class ProductController extends Controller
                     foreach ($request->category as $cat) {
                         $category = new ProductCategory();
                         $category->product_id = $product->id;
-                        $category->name = $cat;
+                        $category->name = $cat['name'];
+                        $category->formula = $cat['formula'];
                         $category->save();
                     }
                 }

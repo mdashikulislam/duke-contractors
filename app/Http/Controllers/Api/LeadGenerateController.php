@@ -127,9 +127,9 @@ class LeadGenerateController extends Controller
             ]);
         }
         if ($request->company_id && intval($request->company_id)) {
-            $companyId = $request->company_id;
+            $company = $request->company_id;
         } else {
-            $companyId = $roofType->company_id;
+            $company = $roofType->company_id;
         }
 
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')->with(['item' => function ($q) use ($company) {

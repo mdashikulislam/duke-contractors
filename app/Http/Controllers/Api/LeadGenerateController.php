@@ -196,16 +196,16 @@ class LeadGenerateController extends Controller
         }
         $validator = \Validator::make($request->all(), [
             'id' => ['required', 'numeric'],
-            'tile' => ['required', 'numeric', 'between:0,1'],
-            'metal' => ['required', 'numeric', 'between:0,1'],
-            'shingle' => ['required', 'numeric', 'between:0,1'],
-            'flat' => ['required', 'numeric', 'between:0,1'],
-            'tpo' => ['required', 'numeric', 'between:0,1'],
-            'tile_current' => ['required', 'numeric', 'between:0,1'],
-            'metal_current' => ['required', 'numeric', 'between:0,1'],
-            'shingle_current' => ['required', 'numeric', 'between:0,1'],
-            'flat_current' => ['required', 'numeric', 'between:0,1'],
-            'tpo_current' => ['required', 'numeric', 'between:0,1'],
+            'tile' => [ 'numeric', 'between:0,1'],
+            'metal' => [ 'numeric', 'between:0,1'],
+            'shingle' => [ 'numeric', 'between:0,1'],
+            'flat' => [ 'numeric', 'between:0,1'],
+            'tpo' => [ 'numeric', 'between:0,1'],
+            'tile_current' => [ 'numeric', 'between:0,1'],
+            'metal_current' => [ 'numeric', 'between:0,1'],
+            'shingle_current' => [ 'numeric', 'between:0,1'],
+            'flat_current' => [ 'numeric', 'between:0,1'],
+            'tpo_current' => [ 'numeric', 'between:0,1'],
             'slope_1' => ['required', 'numeric', 'between:1,12'],
             'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
             'iso' => ['required', 'in:Yes,No'],
@@ -309,7 +309,6 @@ class LeadGenerateController extends Controller
             'material_product_data' => ['nullable', 'array'],
             'material_product_data.*.product_id' => ['required', 'numeric'],
             'material_product_data.*.quantity' => ['required', 'numeric'],
-            'material_product_data.*.category' => ['required'],
             'other_product_data.' => ['nullable', 'array'],
             'other_product_data.*.product_id' => ['required', 'numeric'],
             'other_product_data.*.quantity' => ['required', 'numeric'],
@@ -355,7 +354,7 @@ class LeadGenerateController extends Controller
                 LeadProduct::create([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
-                    'category' => $data['category'],
+                    'category' => @$data['category'] ?? null,
                     'type' => 'Material',
                     'quantity' => $data['quantity']
                 ]);

@@ -41,7 +41,6 @@ class LeadGenerateController extends Controller
             'product_data'=>['required','array'],
             'product_data.*.product_id'=>['required','numeric'],
             'product_data.*.quantity'=>['required','numeric'],
-            'product_data.*.category'=>['required','string'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -92,7 +91,6 @@ class LeadGenerateController extends Controller
                 $leadProduct->lead_id = $request->lead_id;
                 $leadProduct->product_id = $data['product_id'];
                 $leadProduct->quantity = $data['quantity'];
-                $leadProduct->category = $data['category'];
                 $leadProduct->type = "Material";
                 $leadProduct->save();
             }

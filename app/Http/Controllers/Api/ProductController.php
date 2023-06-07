@@ -105,7 +105,7 @@ class ProductController extends Controller
             if ($request->is_default == 0){
                 $rules['category']=['required','max:255','array'];
                 $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
-                $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
+                $rules['category.*.formula']=['nullable'];
             }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
@@ -154,7 +154,7 @@ class ProductController extends Controller
                         $category = new ProductCategory();
                         $category->product_id = $product->id;
                         $category->name = $cat['name'];
-                        $category->formula = $cat['formula'];
+                        $category->formula = @$cat['formula'];
                         $category->save();
                     }
                 }
@@ -365,7 +365,7 @@ class ProductController extends Controller
             if ($request->is_default == 0) {
                 $rules['category']=['required','max:255','array'];
                 $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
-                $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
+                $rules['category.*.formula']=['nullable'];
             }
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
@@ -415,7 +415,7 @@ class ProductController extends Controller
                         $category = new ProductCategory();
                         $category->product_id = $product->id;
                         $category->name = $cat['name'];
-                        $category->formula = $cat['formula'];
+                        $category->formula = @$cat['formula'];
                         $category->save();
                     }
                 }

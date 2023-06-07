@@ -102,7 +102,7 @@ class ProductController extends Controller
         ];
         if ($request->type == 'Material'){
             $rules['is_default'] =['nullable','numeric','between:0,1'];
-            if ($request->is_default == 'No'){
+            if ($request->is_default == 0){
                 $rules['category']=['required','max:255','array'];
                 $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
                 $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
@@ -149,7 +149,7 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type == 'Material'){
-                if ($request->is_default == 'No') {
+                if ($request->is_default == 0) {
                     foreach ($request->category as $cat) {
                         $category = new ProductCategory();
                         $category->product_id = $product->id;
@@ -362,7 +362,7 @@ class ProductController extends Controller
             'dim_covers'=>['nullable','numeric']
         ];
         if ($request->type == 'Material'){
-            if ($request->is_default == 'No') {
+            if ($request->is_default == 0) {
                 $rules['category']=['required','max:255','array'];
                 $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
                 $rules['category.*.formula']=['nullable','in:'.implode(',',PRODUCT_CATEGORY)];
@@ -409,7 +409,7 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type =='Material') {
-                if ($request->is_default == 'No') {
+                if ($request->is_default == 0) {
                     ProductCategory::where('product_id', $id)->delete();
                     foreach ($request->category as $cat) {
                         $category = new ProductCategory();

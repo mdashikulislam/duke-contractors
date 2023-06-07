@@ -72,7 +72,6 @@ class ProductController extends Controller
         $product = Product::where('id',$id);
         if ($exist->type == 'Material'){
             $product =  $product->with('categories')
-                ->whereHas('categories')
                 ->with(['items'=>function($s){
                 $s->with('company');
                 $s->whereHas('company');

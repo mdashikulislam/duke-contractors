@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerPayment;
+use App\Models\Expense;
 use App\Models\InspectionResult;
 use App\Models\Lead;
 use Illuminate\Http\Request;
@@ -87,5 +88,71 @@ class ClientReportController extends Controller
             ];
             return response()->json($response);
         }
+        $leadId = $request->lead_id;
+        Expense::where('type','Permits')->where('lead_id',$leadId)->delete();
+        if (!empty($request->permits)){
+            foreach ($request->permits as $permit){
+                $expense = new Expense();
+                $expense->lead_id = $leadId;
+                $expense->type = 'Permits';
+                $expense->amount = @$permit['amount'];
+                $expense->company_id = @$permit['company'];
+                $expense->description = @$permit['description'];
+                $expense->status = @$permit['status'];
+                $expense->date = @$permit['date'];
+                $expense->save();
+            }
+        }
+        Expense::where('type','Trash')->where('lead_id',$leadId)->delete();
+        if (!empty($request->trash)){
+            foreach ($request->trash as $trash){
+                $expense = new Expense();
+                $expense->lead_id = $leadId;
+                $expense->type = 'Trash';
+                $expense->amount = @$trash['amount'];
+                $expense->company_id = @$trash['company'];
+                $expense->description = @$trash['description'];
+                $expense->status = @$trash['status'];
+                $expense->date = @$trash['date'];
+                $expense->save();
+            }
+        }
+        Expense::where('type','Supplies')->where('lead_id',$leadId)->delete();
+        if (!empty($request->supplies)){
+            foreach ($request->supplies as $supplies){
+                $expense = new Expense();
+                $expense->lead_id = $leadId;
+                $expense->type = 'Supplies';
+                $expense->invoice = @$supplies['invoice'];
+                $expense->company_id = @$supplies['company'];
+                $expense->amount = @$supplies['amount'];
+                $expense->description = @$supplies['description'];
+                $expense->status = @$supplies['status'];
+                $expense->date = @$supplies['date'];
+                $expense->save();
+            }
+        }
+
+        Expense::where('type','Labour')->where('lead_id',$leadId)->delete();
+        if (!empty($request->labour)){
+            foreach ($request->labour as $labour){
+                $expense = new Expense();
+                $expense->lead_id = $leadId;
+                $expense->type = 'Labour';
+                $expense->amount = @$labour['amount'];
+                $expense->precio_por_sq = @$labour['precio_por_sq'];
+                $expense->company_id = @$labour['company'];
+                $expense->description = @$labour['description'];
+                $expense->deck = @$labour['deck'];
+                $expense->status = @$labour['status'];
+                $expense->date = @$labour['date'];
+                $expense->save();
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Update successful',
+            'data' => null
+        ]);
     }
 }

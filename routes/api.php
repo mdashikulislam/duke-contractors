@@ -16,6 +16,7 @@ use \App\Http\Controllers\Api\LeadGenerateController;
 use \App\Http\Controllers\Api\MixController;
 use \App\Http\Controllers\Api\CityController;
 use \App\Http\Controllers\Api\DeckTypeController;
+use \App\Http\Controllers\Api\CustomerPaymentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -114,5 +115,11 @@ Route::middleware('auth:api')->group(function (){
             Route::post('edit-deck-type/{id}','update');
             Route::post('delete-deck-type/{id}','delete');
         });
+    });
+    Route::controller(CustomerPaymentController::class)->group(function (){
+       Route::get('get-customer-payment','index');
+       Route::post('add-customer-payment','create');
+       Route::post('edit-customer-payment/{id}','edit');
+       Route::post('delete-customer-payment','delete');
     });
 });

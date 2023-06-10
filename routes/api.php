@@ -17,6 +17,7 @@ use \App\Http\Controllers\Api\MixController;
 use \App\Http\Controllers\Api\CityController;
 use \App\Http\Controllers\Api\DeckTypeController;
 use \App\Http\Controllers\Api\CustomerPaymentController;
+use \App\Http\Controllers\Api\InspectionResultController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -121,5 +122,11 @@ Route::middleware('auth:api')->group(function (){
        Route::post('add-customer-payment','create');
        Route::post('edit-customer-payment/{id}','edit');
        Route::post('delete-customer-payment','delete');
+    });
+    Route::controller(InspectionResultController::class)->group(function (){
+        Route::get('get-inspections-result','index');
+        Route::post('add-inspections-result','create');
+        Route::post('edit-inspections-result/{id}','edit');
+        Route::post('delete-inspections-result','delete');
     });
 });

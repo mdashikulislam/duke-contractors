@@ -19,6 +19,7 @@ use \App\Http\Controllers\Api\DeckTypeController;
 use \App\Http\Controllers\Api\CustomerPaymentController;
 use \App\Http\Controllers\Api\InspectionResultController;
 use \App\Http\Controllers\Api\OtherController;
+use \App\Http\Controllers\Api\ClientReportController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -137,5 +138,8 @@ Route::middleware('auth:api')->group(function (){
             Route::post('edit-other-company/{id}','update');
             Route::delete('delete-other-company','delete');
         });
+    });
+    Route::controller(ClientReportController::class)->group(function (){
+        Route::get('get-client-report','index');
     });
 });

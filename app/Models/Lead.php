@@ -28,4 +28,9 @@ class Lead extends Model
     {
         return $this->hasOne(City::class,'id','city_for_permit');
     }
+
+    public function sellers()
+    {
+        return $this->hasOne(User::class,'id','seller_id');
+    }
 }

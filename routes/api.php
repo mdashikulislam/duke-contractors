@@ -18,6 +18,7 @@ use \App\Http\Controllers\Api\CityController;
 use \App\Http\Controllers\Api\DeckTypeController;
 use \App\Http\Controllers\Api\CustomerPaymentController;
 use \App\Http\Controllers\Api\InspectionResultController;
+use \App\Http\Controllers\Api\OtherController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -128,5 +129,13 @@ Route::middleware('auth:api')->group(function (){
         Route::post('add-inspections-result','create');
         Route::post('edit-inspections-result/{id}','edit');
         Route::post('delete-inspections-result','delete');
+    });
+    Route::controller(OtherController::class)->group(function (){
+        Route::get('get-other-company','index');
+        Route::middleware('is_admin')->group(function () {
+            Route::post('add-other-company','create');
+            Route::post('edit-other-company/{id}','update');
+            Route::delete('delete-other-company','delete');
+        });
     });
 });

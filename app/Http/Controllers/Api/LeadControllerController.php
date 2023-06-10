@@ -129,7 +129,9 @@ class LeadControllerController extends Controller
             'additional_comments'=>['nullable','max:191'],
             'job_type'=>['required','array'],
             'city_for_permit'=>['required','exists:\App\Models\City,id'],
-            'status'=>['required']
+            'status'=>['required'],
+            'estimate_date'=>['nullable','date_format:Y-m-d'],
+            'job_completed_date'=>['nullable','date_format:Y-m-d'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -153,6 +155,8 @@ class LeadControllerController extends Controller
         $lead->email = $request->email;
         $lead->status = $request->status;
         $lead->additional_comments = $request->additional_comments;
+        $lead->job_completed_date = $request->job_completed_date ?? null;
+        $lead->estimate_date = $request->estimate_date ?? null;
         if ($lead->save()){
             $jobType = [];
             foreach ($request->job_type as $type){

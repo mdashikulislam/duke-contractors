@@ -106,3 +106,5 @@ const PRODUCT_CATEGORY_OWN = [
     'Vapor Retarder',
     'Vent'
 ];
+
+const OTHER_COMPANY_TYPE = ['Permits','Trash','Supplies','Labour'];

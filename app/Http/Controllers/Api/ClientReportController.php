@@ -80,7 +80,11 @@ class ClientReportController extends Controller
             'labour.*.status'=>['nullable','in:Paid,Pending'],
             'labour.*.date'=>['required','date_format:Y-m-d'],
             'labour.*.deck'=>['required','string'],
-
+            'customer_payment'=>['nullable','array'],
+            'customer_payment.*.amount'=>['required','between:0,999999999'],
+            'inspection_result'=>['nullable','array'],
+            'inspection_result.*.type'=>['required','max:191'],
+            'inspection_result.*.date'=>['required','date_format:Y-m-d']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -176,6 +180,31 @@ class ClientReportController extends Controller
                 $expense->save();
             }
         }
+        $userId = auth()->guard('api')->id();
+        CustomerPayment::where('lead_id',$leadId)->delete();
+        if (!empty($request->customer_payment)){
+            foreach ($request->customer_payment as $payment){
+                $pay = new CustomerPayment();
+                $pay->lead_id = $leadId;
+                $pay->user_id = $userId;
+                $pay->amount = $payment['amount'];
+                $pay->save();
+            }
+        }
+        InspectionResult::where('lead_id',$leadId)->delete();
+        if (!empty($request->inspection_result)){
+            foreach ($request->inspection_result as $inspectionResult){
+                $result = new InspectionResult();
+                $result->lead_id = $leadId;
+                $result->user_id = $userId;
+                $result->type = @$inspectionResult['type'];
+                $result->status = @$inspectionResult['status'];
+                $result->date = @$inspectionResult['date'];
+                $result->save();
+            }
+        }
+
+
         return response()->json([
             'status' => true,
             'message' => 'Update successful',

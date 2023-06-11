@@ -42,7 +42,7 @@ class ClientReportController extends Controller
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         $expenses = Expense::where('lead_id',$leadId)->get();
         $sellerCommission = SellerCommission::where('lead_id',$leadId)->get();
-        $contractPrice = ContractPrice::where('lead_id',$leadId)->get()
+        $contractPrice = ContractPrice::where('lead_id',$leadId)->get();
         return response()->json([
             'status' => true,
             'message' => '',

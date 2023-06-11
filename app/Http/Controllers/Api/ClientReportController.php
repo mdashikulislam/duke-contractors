@@ -37,7 +37,7 @@ class ClientReportController extends Controller
         $lead = Lead::with('cityOfPermit')
             ->with('sellers')
             ->where('id',$leadId)->first();
-        $roofType = RoofType::where('id',$leadId)->first();
+        $roofType = RoofType::where('lead_id',$leadId)->first();
         $customerPayments = CustomerPayment::where('lead_id',$leadId)->get();
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         $expenses = Expense::where('lead_id',$leadId)->get();

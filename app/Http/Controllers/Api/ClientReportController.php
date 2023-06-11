@@ -9,6 +9,7 @@ use App\Models\Expense;
 use App\Models\InspectionResult;
 use App\Models\JobType;
 use App\Models\Lead;
+use App\Models\RoofingInformation;
 use App\Models\RoofType;
 use App\Models\SellerCommission;
 use Illuminate\Http\Request;
@@ -104,6 +105,11 @@ class ClientReportController extends Controller
             'contract_price.*.label'=>['required','string'],
             'contract_price.*.value'=>['required','between:0,9999999999'],
             'contract_price.*.percent'=>['required','between:0,9999999999'],
+            'roofing_information'=>['nullable','array'],
+            'roofing_information.*.deck'=>['required','string'],
+            'roofing_information.*.perimeter'=>['required','between:0,999999999'],
+            'roofing_information.*.area'=>['required','between:0,999999999'],
+            'roofing_information.*.pitch'=>['required','string'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -245,6 +251,18 @@ class ClientReportController extends Controller
                 $result->label = $price['label'];
                 $result->value = @$price['value'];
                 $result->percent = @$price['percent'];
+                $result->save();
+            }
+        }
+        RoofingInformation::where('lead_id',$leadId)->delete();
+        if (!empty($request->roofing_information)){
+            foreach ($request->roofing_information as $information){
+                $result = new RoofingInformation();
+                $result->lead_id = $leadId;
+                $result->deck = @$information['deck'];
+                $result->perimeter = @$information['perimeter'];
+                $result->area = @$information['area'];
+                $result->pitch = @$information['pitch'];
                 $result->save();
             }
         }

@@ -12,6 +12,7 @@ use App\Models\Lead;
 use App\Models\RoofingInformation;
 use App\Models\RoofType;
 use App\Models\SellerCommission;
+use App\Models\WoodReplace;
 use Illuminate\Http\Request;
 
 class ClientReportController extends Controller
@@ -45,6 +46,7 @@ class ClientReportController extends Controller
         $sellerCommission = SellerCommission::where('lead_id',$leadId)->get();
         $contractPrice = ContractPrice::where('lead_id',$leadId)->get();
         $roofingInformation = RoofingInformation::where('lead_id',$leadId)->get();
+        $woodReplace = WoodReplace::where('lead_id',$leadId)->get();
         return response()->json([
             'status' => true,
             'message' => '',
@@ -56,7 +58,8 @@ class ClientReportController extends Controller
                 'expenses'=>$expenses,
                 'sellerCommission'=>$sellerCommission,
                 'contractPrice'=>$contractPrice,
-                'roofingInformation'=>$roofingInformation
+                'roofingInformation'=>$roofingInformation,
+                'woodReplace'=>$woodReplace,
             ]
         ]);
     }
@@ -112,6 +115,14 @@ class ClientReportController extends Controller
             'roofing_information.*.perimeter'=>['required','between:0,999999999'],
             'roofing_information.*.area'=>['required','between:0,999999999'],
             'roofing_information.*.pitch'=>['required','string'],
+            'wood_replace'=>['nullable','array'],
+            'wood_replace.*.description'=>['required','string'],
+            'wood_replace.*.measure'=>['nullable','string'],
+            'wood_replace.*.unit'=>['required','between:0,999999999'],
+            'wood_replace.*.quantity'=>['required','between:0,999999999'],
+            'wood_replace.*.total'=>['required','between:0,999999999'],
+            'wood_replace.*.discount'=>['required','between:0,999999999'],
+            'wood_replace.*.collect'=>['required','between:0,999999999']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -265,6 +276,21 @@ class ClientReportController extends Controller
                 $result->perimeter = @$information['perimeter'];
                 $result->area = @$information['area'];
                 $result->pitch = @$information['pitch'];
+                $result->save();
+            }
+        }
+        WoodReplace::where('lead_id',$leadId)->delete();
+        if (!empty($request->wood_replace)){
+            foreach ($request->wood_replace as $wood){
+                $result = new WoodReplace();
+                $result->lead_id = $leadId;
+                $result->description = @$wood['description'];
+                $result->measure = @$wood['measure'];
+                $result->unit = @$wood['unit'];
+                $result->quantity = @$wood['quantity'];
+                $result->total = @$wood['total'];
+                $result->discount = @$wood['discount'];
+                $result->collect = @$wood['collect'];
                 $result->save();
             }
         }

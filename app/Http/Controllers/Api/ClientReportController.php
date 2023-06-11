@@ -9,6 +9,7 @@ use App\Models\InspectionResult;
 use App\Models\JobType;
 use App\Models\Lead;
 use App\Models\RoofType;
+use App\Models\SellerCommission;
 use Illuminate\Http\Request;
 
 class ClientReportController extends Controller
@@ -38,6 +39,7 @@ class ClientReportController extends Controller
         $roofType = RoofType::where('id',$leadId)->first();
         $customerPayments = CustomerPayment::where('lead_id',$leadId)->get();
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
+        $expenses = Expense::where('lead_id',$leadId)->get();
         return response()->json([
             'status' => true,
             'message' => '',
@@ -45,7 +47,8 @@ class ClientReportController extends Controller
                 'lead'=>$lead,
                 'roofType'=>$roofType,
                 'customerPayments'=>$customerPayments,
-                'inspectionResults'=>$inspectionResults
+                'inspectionResults'=>$inspectionResults,
+                'expenses'=>$expenses
             ]
         ]);
     }
@@ -84,7 +87,13 @@ class ClientReportController extends Controller
             'customer_payment.*.amount'=>['required','between:0,999999999'],
             'inspection_result'=>['nullable','array'],
             'inspection_result.*.type'=>['required','max:191'],
-            'inspection_result.*.date'=>['required','date_format:Y-m-d']
+            'inspection_result.*.date'=>['required','date_format:Y-m-d'],
+            'seller_commission'=>['nullable','array'],
+            'seller_commission.*.amount'=>['required','numeric','between:0,9999999999'],
+            'seller_commission.*.paid'=>['required','numeric','between:0,9999999999'],
+            'seller_commission.*.seller_id'=>['required','numeric','exists:\App\Models\User,id'],
+            'seller_commission.*.status'=>['required','in:Paid,Pending'],
+            'seller_commission.*.date'=>['required','date_format:Y-m-d'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -203,8 +212,19 @@ class ClientReportController extends Controller
                 $result->save();
             }
         }
-
-
+        SellerCommission::where('lead_id',$leadId)->delete();
+        if (!empty($request->seller_commission)){
+            foreach ($request->seller_commission as $seller){
+                $result = new SellerCommission();
+                $result->lead_id = $leadId;
+                $result->seller_id = $seller['seller_id'];
+                $result->amount = @$seller['amount'];
+                $result->paid = @$seller['paid'];
+                $result->date = @$seller['date'];
+                $result->status = @$seller['status'];
+                $result->save();
+            }
+        }
         return response()->json([
             'status' => true,
             'message' => 'Update successful',

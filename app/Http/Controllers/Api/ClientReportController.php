@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContractPrice;
 use App\Models\CustomerPayment;
 use App\Models\Expense;
 use App\Models\InspectionResult;
@@ -41,6 +42,7 @@ class ClientReportController extends Controller
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         $expenses = Expense::where('lead_id',$leadId)->get();
         $sellerCommission = SellerCommission::where('lead_id',$leadId)->get();
+        $contractPrice = ContractPrice::where('lead_id',$leadId)->get()
         return response()->json([
             'status' => true,
             'message' => '',
@@ -50,7 +52,8 @@ class ClientReportController extends Controller
                 'customerPayments'=>$customerPayments,
                 'inspectionResults'=>$inspectionResults,
                 'expenses'=>$expenses,
-                'sellerCommission'=>$sellerCommission
+                'sellerCommission'=>$sellerCommission,
+                'contractPrice'=>$contractPrice
             ]
         ]);
     }
@@ -60,7 +63,7 @@ class ClientReportController extends Controller
         $validator = \Validator::make($request->all(),[
             'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
             'estimate_date'=>['required','date_format:Y-m-d'],
-            'job_completed_date'=>['required','date_format:Y-m-d'],
+            'job_completed_date'=>['nullable','date_format:Y-m-d'],
             'job_type'=>['required','array'],
             'permits'=>['nullable','array'],
             'permits.*.amount'=>['required','between:1,99999999999'],
@@ -87,6 +90,7 @@ class ClientReportController extends Controller
             'labour.*.deck'=>['required','string'],
             'customer_payment'=>['nullable','array'],
             'customer_payment.*.amount'=>['required','between:0,999999999'],
+            'customer_payment.*.date'=>['required','date_format:Y-m-d'],
             'inspection_result'=>['nullable','array'],
             'inspection_result.*.type'=>['required','max:191'],
             'inspection_result.*.date'=>['required','date_format:Y-m-d'],
@@ -96,6 +100,10 @@ class ClientReportController extends Controller
             'seller_commission.*.seller_id'=>['required','numeric','exists:\App\Models\User,id'],
             'seller_commission.*.status'=>['required','in:Paid,Pending'],
             'seller_commission.*.date'=>['required','date_format:Y-m-d'],
+            'contract_price'=>['nullable','array'],
+            'contract_price.*.label'=>['required','string'],
+            'contract_price.*.value'=>['required','between:0,9999999999'],
+            'contract_price.*.percent'=>['required','between:0,9999999999'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -116,21 +124,23 @@ class ClientReportController extends Controller
         $lead->job_completed_date = $request->job_completed_date;
         $lead->save();
         $jobType = [];
-        foreach ($request->job_type as $type){
-            if (gettype($type) == 'integer'){
-                $exist = JobType::where('id',$type)->first();
-                if (empty($exist)){
+        if (!empty($request->job_type)){
+            foreach ($request->job_type as $type){
+                if (gettype($type) == 'integer'){
+                    $exist = JobType::where('id',$type)->first();
+                    if (empty($exist)){
+                        continue;
+                    }
+                    $jobType[] = $exist->id;
+                }elseif (gettype($type) == 'string'){
+                    $create = JobType::firstOrCreate(['name' => $type]);
+                    $jobType[] = $create->id;
+                }else{
                     continue;
                 }
-                $jobType[] = $exist->id;
-            }elseif (gettype($type) == 'string'){
-                $create = JobType::firstOrCreate(['name' => $type]);
-                $jobType[] = $create->id;
-            }else{
-                continue;
             }
+            $lead->jobTypes()->sync($jobType);
         }
-        $lead->jobTypes()->sync($jobType);
         Expense::where('type','Permits')->where('lead_id',$leadId)->delete();
         if (!empty($request->permits)){
             foreach ($request->permits as $permit){
@@ -174,7 +184,6 @@ class ClientReportController extends Controller
                 $expense->save();
             }
         }
-
         Expense::where('type','Labour')->where('lead_id',$leadId)->delete();
         if (!empty($request->labour)){
             foreach ($request->labour as $labour){
@@ -198,7 +207,8 @@ class ClientReportController extends Controller
                 $pay = new CustomerPayment();
                 $pay->lead_id = $leadId;
                 $pay->user_id = $userId;
-                $pay->amount = $payment['amount'];
+                $pay->amount = @$payment['amount'];
+                $pay->date = @$payment['date'];
                 $pay->save();
             }
         }
@@ -224,6 +234,17 @@ class ClientReportController extends Controller
                 $result->paid = @$seller['paid'];
                 $result->date = @$seller['date'];
                 $result->status = @$seller['status'];
+                $result->save();
+            }
+        }
+        ContractPrice::where('lead_id',$leadId)->delete();
+        if (!empty($request->contract_price)){
+            foreach ($request->contract_price as $price){
+                $result = new ContractPrice();
+                $result->lead_id = $leadId;
+                $result->label = $price['label'];
+                $result->value = @$price['value'];
+                $result->percent = @$price['percent'];
                 $result->save();
             }
         }

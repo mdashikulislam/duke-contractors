@@ -136,7 +136,7 @@ Route::middleware('auth:api')->group(function (){
         Route::middleware('is_admin')->group(function () {
             Route::post('add-other-company','create');
             Route::post('edit-other-company/{id}','update');
-            Route::delete('delete-other-company','delete');
+            Route::post('delete-other-company','delete');
         });
     });
     Route::controller(ClientReportController::class)->group(function (){

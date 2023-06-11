@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CityForPermit;
 use App\Models\ContractPrice;
 use App\Models\CustomerPayment;
 use App\Models\Expense;
@@ -47,6 +48,7 @@ class ClientReportController extends Controller
         $contractPrice = ContractPrice::where('lead_id',$leadId)->get();
         $roofingInformation = RoofingInformation::where('lead_id',$leadId)->get();
         $woodReplace = WoodReplace::where('lead_id',$leadId)->get();
+        $cityForPermit = CityForPermit::where('lead_id',$leadId)->get();
         return response()->json([
             'status' => true,
             'message' => '',
@@ -60,6 +62,7 @@ class ClientReportController extends Controller
                 'contractPrice'=>$contractPrice,
                 'roofingInformation'=>$roofingInformation,
                 'woodReplace'=>$woodReplace,
+                'cityForPermit'=>$cityForPermit,
             ]
         ]);
     }
@@ -122,7 +125,11 @@ class ClientReportController extends Controller
             'wood_replace.*.quantity'=>['required','between:0,999999999'],
             'wood_replace.*.total'=>['required','between:0,999999999'],
             'wood_replace.*.discount'=>['required','between:0,999999999'],
-            'wood_replace.*.collect'=>['required','between:0,999999999']
+            'wood_replace.*.collect'=>['required','between:0,999999999'],
+            'city_for_permit'=>['nullable','array'],
+            'city_for_permit.*.stage'=>['required','string'],
+            'city_for_permit.*.date'=>['required','date_format:Y-m-d'],
+            'city_for_permit.*.comment'=>['required','string'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -291,6 +298,17 @@ class ClientReportController extends Controller
                 $result->total = @$wood['total'];
                 $result->discount = @$wood['discount'];
                 $result->collect = @$wood['collect'];
+                $result->save();
+            }
+        }
+        CityForPermit::where('lead_id',$leadId)->delete();
+        if (!empty($request->city_for_permit)){
+            foreach ($request->city_for_permit as $permit){
+                $result = new CityForPermit();
+                $result->lead_id = $leadId;
+                $result->stage = @$permit['stage'];
+                $result->date = @$permit['date'];
+                $result->comment = @$permit['comment'];
                 $result->save();
             }
         }

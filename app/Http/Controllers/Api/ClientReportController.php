@@ -8,6 +8,7 @@ use App\Models\Expense;
 use App\Models\InspectionResult;
 use App\Models\JobType;
 use App\Models\Lead;
+use App\Models\RoofType;
 use Illuminate\Http\Request;
 
 class ClientReportController extends Controller
@@ -34,6 +35,7 @@ class ClientReportController extends Controller
         $lead = Lead::with('cityOfPermit')
             ->with('sellers')
             ->where('id',$leadId)->first();
+        $roofType = RoofType::where('id',$leadId)->first();
         $customerPayments = CustomerPayment::where('lead_id',$leadId)->get();
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         return response()->json([
@@ -41,6 +43,7 @@ class ClientReportController extends Controller
             'message' => '',
             'data' => [
                 'lead'=>$lead,
+                'roofType'=>$roofType,
                 'customerPayments'=>$customerPayments,
                 'inspectionResults'=>$inspectionResults
             ]

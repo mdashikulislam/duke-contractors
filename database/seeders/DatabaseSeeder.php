@@ -28,5 +28,7 @@ class DatabaseSeeder extends Seeder
 //        });
         $this->call(AdminSeeder::class);
         $this->call(JobTypeSeeder::class);
+        $this->call(CitySeeder::class);
+
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lead extends Model
 {
     use HasFactory;
+    protected $fillable = ['is_estimate'];
     public static function myRole()
     {
        $auth = getAuthInfo();
@@ -21,5 +22,15 @@ class Lead extends Model
     public function jobTypes()
     {
         return $this->belongsToMany(JobType::class,'lead_job_types');
+    }
+
+    public function cityOfPermit()
+    {
+        return $this->hasOne(City::class,'id','city_for_permit');
+    }
+
+    public function sellers()
+    {
+        return $this->hasOne(User::class,'id','seller_id');
     }
 }

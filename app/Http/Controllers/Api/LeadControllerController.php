@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\JobType;
 use App\Models\Lead;
+use App\Models\RoofType;
 use Illuminate\Http\Request;
 
 class LeadControllerController extends Controller
@@ -36,7 +37,10 @@ class LeadControllerController extends Controller
         if (!empty($request->offset)){
             $offset = $request->offset;
         }
-        $leads = Lead::myRole()->with('jobTypes')->whereHas('jobTypes')->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
+        $leads = Lead::myRole()->with('jobTypes')
+            ->whereHas('jobTypes')
+            ->with('cityOfPermit')
+            ->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
         return response()->json([
             'status'=>true,
             'message'=>'',
@@ -49,12 +53,14 @@ class LeadControllerController extends Controller
     public function addLead(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'client_name'=>['required','max:191'],
+            'seller_id'=>['required','numeric'],
+            'customer_name'=>['required','max:191'],
             'address'=>['required','max:191'],
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','array']
+            'job_type'=>['required','array'],
+            'city_for_permit'=>['required','exists:\App\Models\City,id']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -86,7 +92,9 @@ class LeadControllerController extends Controller
         }
         $lead = new Lead();
         $lead->user_id = getAuthInfo()->id;
-        $lead->client_name = $request->client_name;
+        $lead->customer_name = $request->customer_name;
+        $lead->city_for_permit = $request->city_for_permit;
+        $lead->seller_id = $request->seller_id;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
         $lead->email = $request->email;
@@ -113,12 +121,17 @@ class LeadControllerController extends Controller
             ]);
         }
         $validator = \Validator::make($request->all(),[
-            'client_name'=>['required','max:191'],
+            'seller_id'=>['required','numeric'],
+            'customer_name'=>['required','max:191'],
             'address'=>['required','max:191'],
             'phone'=>['required','max:191'],
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
-            'job_type'=>['required','array']
+            'job_type'=>['required','array'],
+            'city_for_permit'=>['required','exists:\App\Models\City,id'],
+            'status'=>['required'],
+            'estimate_date'=>['nullable','date_format:Y-m-d'],
+            'job_completed_date'=>['nullable','date_format:Y-m-d'],
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -133,11 +146,17 @@ class LeadControllerController extends Controller
             ];
             return response()->json($response);
         }
-        $lead->client_name = $request->client_name;
+
+        $lead->customer_name = $request->customer_name;
+        $lead->city_for_permit = $request->city_for_permit;
+        $lead->seller_id = $request->seller_id;
         $lead->address = $request->address;
         $lead->phone = $request->phone;
         $lead->email = $request->email;
+        $lead->status = $request->status;
         $lead->additional_comments = $request->additional_comments;
+        $lead->job_completed_date = $request->job_completed_date ?? null;
+        $lead->estimate_date = $request->estimate_date ?? null;
         if ($lead->save()){
             $jobType = [];
             foreach ($request->job_type as $type){
@@ -178,11 +197,13 @@ class LeadControllerController extends Controller
 
         $lead = Lead::myRole()->with('jobTypes')->where('id',$id)->first();
         if (!empty($lead)){
+            $roofTypes = RoofType::where('lead_id',$lead->id)->first();
             $response = [
                 'status'=>true,
                 'message'=>'',
                 'data'=>[
-                    'lead'=>$lead
+                    'lead'=>$lead,
+                    'roofTypes'=>$roofTypes
                 ],
             ];
         }else{

@@ -10,7 +10,9 @@ return new class extends Migration {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->index()->default(0);
-            $table->string('client_name')->nullable();
+            $table->string('customer_name')->nullable();
+            $table->integer('seller_id')->default(0);
+            $table->integer('city_for_permit')->default(0);
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();

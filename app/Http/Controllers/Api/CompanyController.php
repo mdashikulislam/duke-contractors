@@ -3,27 +3,33 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\JobType;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-class JobTypeController extends Controller
+
+class CompanyController extends Controller
 {
     public function index()
     {
-        $types = JobType::all();
+
+        $companies = Company::orderByDesc('created_at')->get();
         return response()->json([
             'status' => true,
             'message' => '',
             'data' => [
-                'types'=>$types
+                'companies'=>$companies
             ]
         ]);
+
+
     }
 
     public function store(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'name'=>['required','max:255','string','unique:job_types']
+            'name'=>['required','max:255','string','unique:companies,name'],
+            'is_default'=>['required','numeric','between:0,1']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -38,31 +44,37 @@ class JobTypeController extends Controller
             ];
             return response()->json($response);
         }
-        $type = new JobType();
-        $type->name = $request->name;
-        if ($type->save()){
+        $company = new Company();
+        $company->name = $request->name;
+        $company->is_default = $request->is_default;
+        if ($company->save()){
+            if ($request->is_default == 1){
+                Company::where('id','!=',$company->id)->update([
+                   'is_default' => 0
+                ]);
+            }
             $response = [
                 'status' => true,
-                'message' => 'Job type create successful',
+                'message' => 'Company add successful',
                 'data' => [
-                    'type'=>$type
+                    'company'=>$company
                 ]
             ];
         }else{
             $response = [
                 'status' => false,
-                'message' => 'Something went wrong',
+                'message' => 'Company not create',
                 'data' => null
             ];
         }
         return response()->json($response);
     }
 
-    public function edit(Request $request)
+    public function edit($id,Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'job_type_id'=>['required','numeric','exists:\App\Models\JobType,id'],
-            'name'=>['required','max:255','string',Rule::unique('job_types')->ignore($request->job_type_id)]
+            'name'=>['required','max:255','string',Rule::unique('companies')->ignore($id)],
+            'is_default'=>['required','numeric','between:0,1']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -77,20 +89,33 @@ class JobTypeController extends Controller
             ];
             return response()->json($response);
         }
-        $type = JobType::where('id',$request->job_type_id)->first();
-        $type->name = $request->name;
-        if ($type->save()){
+        $company  = Company::where('id',$id)->first();
+        if (empty($company)){
+            return response()->json([
+               'status'=>false,
+               'message'=>'Company not found',
+               'data'=>null
+            ]);
+        }
+        $company->name = $request->name;
+        $company->is_default = $request->is_default;
+        if ($company->save()){
+            if ($request->is_default == 1){
+                Company::where('id','!=',$company->id)->update([
+                    'is_default' => 0
+                ]);
+            }
             $response = [
                 'status' => true,
-                'message' => 'Job type update successful',
+                'message' => 'Company update successful',
                 'data' => [
-                    'type'=>$type
+                    'company'=>$company
                 ]
             ];
         }else{
             $response = [
                 'status' => false,
-                'message' => 'Something went wrong',
+                'message' => 'Company not create',
                 'data' => null
             ];
         }
@@ -99,18 +124,18 @@ class JobTypeController extends Controller
 
     public function delete($id)
     {
-        $type = JobType::where('id',$id)->first();
-        if (empty($type)){
+        $company  = Company::where('id',$id)->first();
+        if (empty($company)){
             return response()->json([
                 'status' => false,
-                'message' => 'Job type not found',
+                'message' => 'Company not found',
                 'data' => null
             ]);
         }
-        $type->delete();
+        $company->delete();
         return response()->json([
             'status' => true,
-            'message' => 'Job type delete successful',
+            'message' => 'Company delete successful',
             'data' => null
         ]);
     }

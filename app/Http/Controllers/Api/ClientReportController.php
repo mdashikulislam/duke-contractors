@@ -37,6 +37,7 @@ class ClientReportController extends Controller
             return response()->json($response);
         }
         $leadId = $request->lead_id;
+
         $lead = Lead::with('cityOfPermit')
             ->with('sellers')
             ->where('id',$leadId)->first();
@@ -44,6 +45,7 @@ class ClientReportController extends Controller
         $customerPayments = CustomerPayment::where('lead_id',$leadId)->get();
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         $expenses = Expense::where('lead_id',$leadId)->get();
+
         $sellerCommission = SellerCommission::where('lead_id',$leadId)->get();
         $contractPrice = ContractPrice::where('lead_id',$leadId)->get();
         $roofingInformation = RoofingInformation::where('lead_id',$leadId)->get();

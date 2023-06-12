@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class WoodReplace extends Model
 {
-    protected $fillable = 'wood_replaces';
+    protected $table = 'wood_replaces';
 }

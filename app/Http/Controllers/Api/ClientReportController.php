@@ -75,7 +75,6 @@ class ClientReportController extends Controller
             'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
             'estimate_date'=>['required','date_format:Y-m-d'],
             'job_completed_date'=>['nullable','date_format:Y-m-d'],
-            'job_type'=>['required','array'],
             'permits'=>['nullable','array'],
             'permits.*.amount'=>['required','between:1,99999999999'],
             'permits.*.company'=>['required','numeric','exists:\App\Models\other_companies,id'],
@@ -147,28 +146,28 @@ class ClientReportController extends Controller
             return response()->json($response);
         }
         $leadId = $request->lead_id;
-        $lead = Lead::where('id',$leadId)->first();
+        $lead = Lead::with('jobTypes')->whereHas('jobTypes')->where('id',$leadId)->first();
         $lead->estimate_date = $request->estimate_date;
         $lead->job_completed_date = $request->job_completed_date;
         $lead->save();
-        $jobType = [];
-        if (!empty($request->job_type)){
-            foreach ($request->job_type as $type){
-                if (gettype($type) == 'integer'){
-                    $exist = JobType::where('id',$type)->first();
-                    if (empty($exist)){
-                        continue;
-                    }
-                    $jobType[] = $exist->id;
-                }elseif (gettype($type) == 'string'){
-                    $create = JobType::firstOrCreate(['name' => $type]);
-                    $jobType[] = $create->id;
-                }else{
-                    continue;
-                }
-            }
-            $lead->jobTypes()->sync($jobType);
-        }
+//        $jobType = [];
+//        if (!empty($request->job_type)){
+//            foreach ($request->job_type as $type){
+//                if (gettype($type) == 'integer'){
+//                    $exist = JobType::where('id',$type)->first();
+//                    if (empty($exist)){
+//                        continue;
+//                    }
+//                    $jobType[] = $exist->id;
+//                }elseif (gettype($type) == 'string'){
+//                    $create = JobType::firstOrCreate(['name' => $type]);
+//                    $jobType[] = $create->id;
+//                }else{
+//                    continue;
+//                }
+//            }
+//            $lead->jobTypes()->sync($jobType);
+//        }
         Expense::where('type','Permits')->where('lead_id',$leadId)->delete();
         if (!empty($request->permits)){
             foreach ($request->permits as $permit){

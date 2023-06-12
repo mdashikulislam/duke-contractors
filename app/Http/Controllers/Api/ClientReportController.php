@@ -108,7 +108,7 @@ class ClientReportController extends Controller
             'seller_commission.*.amount'=>['required','numeric','between:0,9999999999'],
             'seller_commission.*.paid'=>['required','numeric','between:0,9999999999'],
             'seller_commission.*.seller_id'=>['required','numeric','exists:\App\Models\User,id'],
-            'seller_commission.*.status'=>['required','in:paid,Pending'],
+            'seller_commission.*.status'=>['required','in:paid,pending'],
             'seller_commission.*.date'=>['required','date_format:Y-m-d'],
             'contract_price'=>['nullable','array'],
             'contract_price.*.label'=>['required','string'],

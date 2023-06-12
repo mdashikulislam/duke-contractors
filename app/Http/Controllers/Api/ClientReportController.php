@@ -253,14 +253,14 @@ class ClientReportController extends Controller
         }
         SellerCommission::where('lead_id',$leadId)->delete();
         if (!empty($request->seller_commission)){
-            foreach ($request->seller_commission as $seller){
+            foreach ($request->seller_commission as $commision){
                 $result = new SellerCommission();
                 $result->lead_id = $leadId;
-                $result->seller_id = $seller['seller_id'];
-                $result->amount = @$seller['amount'];
-                $result->paid = @$seller['paid'];
-                $result->date = @$seller['date'];
-                $result->status = ucfirst(@$seller['status']);
+                $result->seller_id = $commision['seller_id'];
+                $result->amount = @$commision['amount'];
+                $result->paid = @$commision['paid'];
+                $result->date = @$commision['date'];
+                $result->status = ucfirst(@$commision['status']);
                 $result->save();
             }
         }

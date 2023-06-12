@@ -38,7 +38,7 @@ class ClientReportController extends Controller
         }
         $leadId = $request->lead_id;
 
-        $lead = Lead::with('cityOfPermit')
+        $lead = Lead::with('jobTypes')->whereHas('jobTypes')->with('cityOfPermit')
             ->with('sellers')
             ->where('id',$leadId)->first();
         $roofType = RoofType::where('lead_id',$leadId)->first();
@@ -146,7 +146,7 @@ class ClientReportController extends Controller
             return response()->json($response);
         }
         $leadId = $request->lead_id;
-        $lead = Lead::with('jobTypes')->whereHas('jobTypes')->where('id',$leadId)->first();
+        $lead = Lead::where('id',$leadId)->first();
         $lead->estimate_date = $request->estimate_date;
         $lead->job_completed_date = $request->job_completed_date;
         $lead->save();

@@ -142,5 +142,6 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(ClientReportController::class)->group(function (){
         Route::get('get-client-report','index');
         Route::post('add-update-client-report','addUpdate');
+        Route::get('get-supplier-list','getSupplierList');
     });
 });

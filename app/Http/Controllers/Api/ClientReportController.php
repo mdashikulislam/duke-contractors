@@ -78,24 +78,24 @@ class ClientReportController extends Controller
             'permits'=>['nullable','array'],
             'permits.*.amount'=>['required_if:permits,null','between:1,99999999999'],
             'permits.*.company'=>['required_if:permits,null','numeric','exists:\App\Models\OtherCompany,id'],
-            'permits.*.status'=>['required_if:permits,null','in:Paid,Pending'],
+            'permits.*.status'=>['required_if:permits,null','in:paid,pending'],
             'permits.*.date'=>['required_if:permits,null','date_format:Y-m-d'],
             'trash'=>['nullable','array'],
             'trash.*.amount'=>['required','between:1,99999999999'],
             'trash.*.company'=>['required','numeric','exists:\App\Models\OtherCompany,id'],
-            'trash.*.status'=>['nullable','in:Paid,Pending'],
+            'trash.*.status'=>['nullable','in:paid,pending'],
             'trash.*.date'=>['required','date_format:Y-m-d'],
             'supplies'=>['nullable','array'],
             'supplies.*.invoice'=>['required','max:50'],
             'supplies.*.company'=>['required','numeric','exists:\App\Models\OtherCompany,id'],
             'supplies.*.amount'=>['required','between:1,99999999999'],
-            'supplies.*.status'=>['nullable','in:Paid,Pending'],
+            'supplies.*.status'=>['nullable','in:paid,pending'],
             'supplies.*.date'=>['required','date_format:Y-m-d'],
             'labour'=>['nullable','array'],
             'labour.*.precio_por_sq'=>['required','between:1,99999999999'],
             'labour.*.company'=>['required','numeric','exists:\App\Models\OtherCompany,id'],
             'labour.*.amount'=>['required','between:1,99999999999'],
-            'labour.*.status'=>['nullable','in:Paid,Pending'],
+            'labour.*.status'=>['nullable','in:paid,pending'],
             'labour.*.date'=>['required','date_format:Y-m-d'],
             'labour.*.deck'=>['required','string'],
             'customer_payment'=>['nullable','array'],
@@ -108,7 +108,7 @@ class ClientReportController extends Controller
             'seller_commission.*.amount'=>['required','numeric','between:0,9999999999'],
             'seller_commission.*.paid'=>['required','numeric','between:0,9999999999'],
             'seller_commission.*.seller_id'=>['required','numeric','exists:\App\Models\User,id'],
-            'seller_commission.*.status'=>['required','in:Paid,Pending'],
+            'seller_commission.*.status'=>['required','in:paid,Pending'],
             'seller_commission.*.date'=>['required','date_format:Y-m-d'],
             'contract_price'=>['nullable','array'],
             'contract_price.*.label'=>['required','string'],
@@ -177,7 +177,7 @@ class ClientReportController extends Controller
                 $expense->amount = @$permit['amount'];
                 $expense->company_id = @$permit['company'];
                 $expense->description = @$permit['description'];
-                $expense->status = @$permit['status'];
+                $expense->status = ucfirst(@$permit['status']);
                 $expense->date = @$permit['date'];
                 $expense->save();
             }
@@ -191,7 +191,7 @@ class ClientReportController extends Controller
                 $expense->amount = @$trash['amount'];
                 $expense->company_id = @$trash['company'];
                 $expense->description = @$trash['description'];
-                $expense->status = @$trash['status'];
+                $expense->status = ucfirst(@$trash['status']);
                 $expense->date = @$trash['date'];
                 $expense->save();
             }
@@ -206,7 +206,7 @@ class ClientReportController extends Controller
                 $expense->company_id = @$supplies['company'];
                 $expense->amount = @$supplies['amount'];
                 $expense->description = @$supplies['description'];
-                $expense->status = @$supplies['status'];
+                $expense->status = ucfirst(@$supplies['status']);
                 $expense->date = @$supplies['date'];
                 $expense->save();
             }
@@ -222,7 +222,7 @@ class ClientReportController extends Controller
                 $expense->company_id = @$labour['company'];
                 $expense->description = @$labour['description'];
                 $expense->deck = @$labour['deck'];
-                $expense->status = @$labour['status'];
+                $expense->status = ucfirst(@$labour['status']);
                 $expense->date = @$labour['date'];
                 $expense->save();
             }
@@ -246,7 +246,7 @@ class ClientReportController extends Controller
                 $result->lead_id = $leadId;
                 $result->user_id = $userId;
                 $result->type = @$inspectionResult['type'];
-                $result->status = @$inspectionResult['status'];
+                $result->status = ucfirst(@$inspectionResult['status']);
                 $result->date = @$inspectionResult['date'];
                 $result->save();
             }
@@ -260,7 +260,7 @@ class ClientReportController extends Controller
                 $result->amount = @$seller['amount'];
                 $result->paid = @$seller['paid'];
                 $result->date = @$seller['date'];
-                $result->status = @$seller['status'];
+                $result->status = ucfirst(@$seller['status']);
                 $result->save();
             }
         }

@@ -318,6 +318,10 @@ class LeadGenerateController extends Controller
             'seller_commission' => ['nullable', 'between:0,100'],
             'office_commission' => ['nullable', 'between:0,100'],
             'final_contract_price' => ['nullable', 'string'],
+            'labor_total' => ['nullable', 'between:0,999999999999'],
+            'trash_total' => ['nullable', 'between:0,999999999999'],
+            'permit_total' => ['nullable', 'between:0,999999999999'],
+            'supplies_total' => ['nullable', 'between:0,999999999999'],
         ]);
         if ($validator->fails()) {
             $errors = "";
@@ -347,6 +351,10 @@ class LeadGenerateController extends Controller
         $roofType->office_commission = $request->office_commission;
         $roofType->final_contract_price = $request->final_contract_price;
         $roofType->company_id = $request->company_id;
+        $roofType->labor_total = $request->labor_total ?? 0;
+        $roofType->trash_total = $request->trash_total ?? 0;
+        $roofType->permit_total = $request->permit_total ?? 0;
+        $roofType->supplies_total = $request->supplies_total ?? 0;
         $roofType->save();
         if (!empty($request->material_product_data)) {
             LeadProduct::where('lead_id', $lead->id)->where('type', 'Material')->delete();

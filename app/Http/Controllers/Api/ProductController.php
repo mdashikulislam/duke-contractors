@@ -307,7 +307,7 @@ class ProductController extends Controller
         $material = [];
         if ($category){
             foreach ($category as $cs){
-                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category as pc')
                     ->leftJoin('lead_products',function ($s){
                         $s->on('lead_products.product_id','=','products.id');
                     })

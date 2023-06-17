@@ -161,6 +161,8 @@ class LeadGenerateController extends Controller
             ->where('products.type', 'Material')
             ->groupBy('products.id')
             ->get();
+
+
         $otherProduct = LeadProduct::with(['products' => function ($s) use ($companyId) {
             $s->with('item');
             $s->whereHas('item');

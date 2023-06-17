@@ -307,7 +307,11 @@ class ProductController extends Controller
         $material = [];
         if ($category){
             foreach ($category as $cs){
-                $materialProduct = Product::where('type','Material')
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
+                    ->leftJoin('lead_products',function ($s){
+                        $s->on('lead_products.product_id','=','products.id');
+                    })
+                    ->where('products.type','Material')
                     ->with(['item'=>function($s) use($roofType){
                         $s->where('company_id',$roofType->company_id);
                     }])
@@ -320,7 +324,7 @@ class ProductController extends Controller
                     ->whereHas('categories',function ($s) use($cs){
                         $s->where('name',$cs);
                     })
-                    ->where('is_default',0)
+                    ->where('products.is_default',0)
                     ->get();
                 if (!empty($materialProduct)){
                     foreach ($materialProduct as $product){
@@ -329,9 +333,13 @@ class ProductController extends Controller
                 }
             }
         }
-        $otherProducts = Product::with('item')
+        $otherProducts = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
+            ->with('item')
             ->whereHas('item')
-            ->where('type','!=','Material')
+            ->leftJoin('lead_products',function ($s){
+                $s->on('lead_products.product_id','=','products.id');
+            })
+            ->where('products.type','!=','Material')
             ->get();
         return response()->json([
            'status'=>true,

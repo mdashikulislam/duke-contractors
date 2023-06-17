@@ -321,7 +321,7 @@ class ProductController extends Controller
                     ->with(['category'=>function($s) use($cs){
                         $s->where('name',$cs);
                     }])
-                    ->whereHas('categories',function ($s) use($cs){
+                    ->whereHas('category',function ($s) use($cs){
                         $s->where('name',$cs);
                     })
                     ->where('products.is_default',0)

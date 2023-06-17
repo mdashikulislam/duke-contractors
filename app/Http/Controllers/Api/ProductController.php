@@ -308,8 +308,9 @@ class ProductController extends Controller
         if ($category){
             foreach ($category as $cs){
                 $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
-                    ->leftJoin('lead_products',function ($s){
+                    ->leftJoin('lead_products',function ($s) use($cs){
                         $s->on('lead_products.product_id','=','products.id');
+                        $s->where('lead_products.category','=',$cs);
                     })
                     ->where('products.type','Material')
                     ->with(['item'=>function($s) use($roofType){

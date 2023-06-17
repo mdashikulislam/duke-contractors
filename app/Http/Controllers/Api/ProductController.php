@@ -307,7 +307,7 @@ class ProductController extends Controller
         $material = [];
         if ($category){
             foreach ($category as $cs){
-                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category as pc')
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
                     ->leftJoin('lead_products',function ($s){
                         $s->on('lead_products.product_id','=','products.id');
                     })
@@ -334,13 +334,14 @@ class ProductController extends Controller
                 }
             }
         }
-        $otherProducts = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
+        $otherProducts = Product::selectRaw('products.*,lead_products.quantity')
             ->with('item')
             ->whereHas('item')
             ->leftJoin('lead_products',function ($s){
                 $s->on('lead_products.product_id','=','products.id');
             })
             ->where('products.type','!=','Material')
+            ->groupBy('products.id')
             ->get();
         return response()->json([
            'status'=>true,

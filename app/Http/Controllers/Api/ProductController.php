@@ -325,6 +325,7 @@ class ProductController extends Controller
                         $s->where('name',$cs);
                     })
                     ->where('products.is_default',0)
+                    ->groupBy('products.id')
                     ->get();
                 if (!empty($materialProduct)){
                     foreach ($materialProduct as $product){

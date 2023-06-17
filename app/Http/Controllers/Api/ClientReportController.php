@@ -347,9 +347,12 @@ class ClientReportController extends Controller
         if (!empty($request->offset)){
             $offset = $request->offset;
         }
-        $sellers = Expense::with('otherCompanies')
+        $sellers = Expense::selectRaw('expenses.*,leads.customer_name,leads.address,leads.email,leads.phone')
+            ->join('leads','leads.id','=','expenses.lead_id')
+            ->with('otherCompanies')
             ->whereHas('otherCompanies')
-            ->where('type','Supplies')->orderByDesc('created_at')
+            ->where('expenses.type','Supplies')
+            ->orderByDesc('expenses.created_at')
             ->skip($offset)->limit($limit)
             ->get();
         return response()->json([

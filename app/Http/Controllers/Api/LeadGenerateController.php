@@ -132,7 +132,8 @@ class LeadGenerateController extends Controller
             $company = $roofType->company_id;
         }
 
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')->with(['item' => function ($q) use ($company) {
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+            ->with(['item' => function ($q) use ($company) {
             $q->where('company_id', $company);
         }])
             ->leftJoin('lead_products', function ($s) use ($leadId) {

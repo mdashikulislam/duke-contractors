@@ -288,22 +288,22 @@ class ProductController extends Controller
         if ($roofType->tpo == 1){
             $category[] = 'Tpo';
         }
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
-            ->leftJoin('lead_products',function ($s){
-                $s->on('lead_products.product_id','=','products.id');
-            })
-            ->where('products.type','Material')
-            ->with(['item'=>function($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+            ->with(['item' => function ($q) use ($roofType) {
+                $q->where('company_id', $roofType->company_id);
             }])
-            ->whereHas('item',function ($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
+            ->leftJoin('lead_products', function ($s) use ($request) {
+                $s->on('lead_products.product_id', '=', 'products.id');
+                $s->where('lead_products.lead_id', $request->lead_id);
             })
-            ->whereHas('categories',function ($s) use($category){
-                $s->whereIn('name',$category);
+            ->whereHas('item', function ($q) use ($roofType) {
+                $q->where('company_id', $roofType->company_id);
             })
-            ->where('products.is_default',1)
+            ->where('products.is_default', 1)
+            ->where('products.type', 'Material')
+            ->groupBy('products.id')
             ->get();
+
         $material = [];
         if ($category){
             foreach ($category as $cs){
@@ -339,8 +339,9 @@ class ProductController extends Controller
         $otherProducts = Product::selectRaw('products.*,lead_products.quantity')
             ->with('item')
             ->whereHas('item')
-            ->leftJoin('lead_products',function ($s){
+            ->leftJoin('lead_products',function ($s) use($request){
                 $s->on('lead_products.product_id','=','products.id');
+                $s->where('lead_products.lead_id', $request->lead_id);
             })
             ->where('products.type','!=','Material')
             ->groupBy('products.id')
@@ -349,7 +350,7 @@ class ProductController extends Controller
            'status'=>true,
             'message'=>'',
            'data'=>[
-               'default'=>$defaultProduct,
+                'default'=>$defaultProduct,
                 'materialProduct'=>$material,
                 'otherProducts'=>$otherProducts
            ]

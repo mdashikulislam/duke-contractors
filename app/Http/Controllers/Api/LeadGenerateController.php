@@ -63,8 +63,9 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-
-        RoofType::where('lead_id', $request->lead_id)->delete();
+        if (RoofType::where('lead_id', $request->lead_id)->exists()){
+            RoofType::where('lead_id', $request->lead_id)->delete();
+        }
         \DB::beginTransaction();
         try {
             $type = new RoofType();
@@ -88,7 +89,9 @@ class LeadGenerateController extends Controller
             $type->tax = $request->tax;
             $type->company_id = @Company::where('is_default', 1)->first()->id ?? 1;
             $type->save();
-            LeadProduct::where('lead_id', $request->lead_id)->delete();
+            if (LeadProduct::where('lead_id', $request->lead_id)->exists()){
+                LeadProduct::where('lead_id', $request->lead_id)->delete();
+            }
             if (!empty($request->product_data)){
                 foreach ($request->product_data as $data) {
                     $leadProduct = new LeadProduct();

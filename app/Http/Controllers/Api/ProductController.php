@@ -97,6 +97,8 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
+            'product_data.*.company_id'=>['required','numeric','min:1'],
+            'product_data.*.unit_price'=>['required','numeric','min:1'],
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
         ];
@@ -129,7 +131,6 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
-
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';

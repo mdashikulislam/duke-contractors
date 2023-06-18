@@ -143,5 +143,7 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-client-report','index');
         Route::post('add-update-client-report','addUpdate');
         Route::get('get-supplier-list','getSupplierList');
+        Route::post('add-supplier','addSupplier');
+        Route::post('edit-supplier/{id}','editSupplier');
     });
 });

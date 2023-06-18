@@ -38,7 +38,13 @@ class UserController extends Controller
         if (!empty($request->offset)){
             $offset = $request->offset;
         }
-        $users = User::select('id','name','email','role')->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
+        $users = User::select('id','name','email','role');
+        if ($request->search){
+//            $users = $users->where(function ($s) use(){
+//
+//            });
+        }
+        $users = $users->orderByDesc('created_at')->skip($offset)->limit($limit)->get();
         return response()->json([
            'status'=>true,
            'message'=>'',

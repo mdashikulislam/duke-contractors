@@ -364,4 +364,52 @@ class ClientReportController extends Controller
         ]);
 
     }
+
+    public function addSupplier(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'invoice'=>['required','string'],
+            'company'=>['required','numeric','exists:\App\Models\OtherCompany,id'],
+            'amount'=>['required','between:1,99999999999'],
+            'status'=>['nullable','in:Paid,Pending'],
+            'date'=>['required','date_format:Y-m-d'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $supplier = new Expense();
+        $supplier->lead_id = $request->lead_id;
+        $supplier->type = 'Supplies';
+        $supplier->invoice = $request->invoice;
+        $supplier->company_id = $request->company;
+        $supplier->amount = $request->amount;
+        $supplier->status = $request->amount;
+        $supplier->date = $request->amount;
+        $supplier->description = @$request->description;
+
+        if ($supplier->save()){
+            return response()->json([
+                'status' => true,
+                'message' => 'Data save successfully',
+                'data' => null
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Data not saved',
+                'data' => null
+            ]);
+        }
+    }
 }

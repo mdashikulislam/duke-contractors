@@ -56,6 +56,14 @@ class LeadGenerateController extends Controller
             return response()->json($response);
         }
 
+        if ($request->tile != 1 && $request->metal != 1 && $request->shingle != 1 && $request->tpo != 1 && $request->flat != 1 ){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please select at least 1 desired roof type',
+                'data' => null
+            ]);
+        }
+
         RoofType::where('lead_id', $request->lead_id)->delete();
         \DB::beginTransaction();
         try {

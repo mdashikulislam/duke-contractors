@@ -38,9 +38,9 @@ class LeadGenerateController extends Controller
             'roof_snap' => ['required'],
             'eagle_view' => ['required'],
             'tax' => ['required', 'between:0,100'],
-            'product_data' => ['required', 'array'],
-            'product_data.*.id' => ['required', 'numeric'],
-            'product_data.*.quantity' => ['required', 'numeric'],
+            'product_data' => ['nullable', 'array'],
+            'product_data.*.id' => ['nullable', 'numeric'],
+            'product_data.*.quantity' => ['nullable', 'numeric'],
         ]);
         if ($validator->fails()) {
             $errors = "";
@@ -89,13 +89,15 @@ class LeadGenerateController extends Controller
             $type->company_id = @Company::where('is_default', 1)->first()->id ?? 1;
             $type->save();
             LeadProduct::where('lead_id', $request->lead_id)->delete();
-            foreach ($request->product_data as $data) {
-                $leadProduct = new LeadProduct();
-                $leadProduct->lead_id = $request->lead_id;
-                $leadProduct->product_id = $data['id'];
-                $leadProduct->quantity = $data['quantity'];
-                $leadProduct->type = "Material";
-                $leadProduct->save();
+            if (!empty($request->product_data)){
+                foreach ($request->product_data as $data) {
+                    $leadProduct = new LeadProduct();
+                    $leadProduct->lead_id = $request->lead_id;
+                    $leadProduct->product_id = $data['id'];
+                    $leadProduct->quantity = @$data['quantity'] ?? 0;
+                    $leadProduct->type = "Material";
+                    $leadProduct->save();
+                }
             }
             Lead::where('id', $request->lead_id)->update(['is_estimate' => 1]);
             \DB::commit();

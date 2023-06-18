@@ -394,8 +394,8 @@ class ClientReportController extends Controller
         $supplier->invoice = $request->invoice;
         $supplier->company_id = $request->company;
         $supplier->amount = $request->amount;
-        $supplier->status = $request->amount;
-        $supplier->date = $request->amount;
+        $supplier->status = $request->status;
+        $supplier->date = $request->date;
         $supplier->description = @$request->description;
         if ($supplier->save()){
             return response()->json([
@@ -448,8 +448,8 @@ class ClientReportController extends Controller
         $supplier->invoice = $request->invoice;
         $supplier->company_id = $request->company;
         $supplier->amount = $request->amount;
-        $supplier->status = $request->amount;
-        $supplier->date = $request->amount;
+        $supplier->status = $request->status;
+        $supplier->date = $request->date;
         $supplier->description = @$request->description;
         if ($supplier->save()){
             return response()->json([

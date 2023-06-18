@@ -145,5 +145,6 @@ Route::middleware('auth:api')->group(function (){
         Route::get('get-supplier-list','getSupplierList');
         Route::post('add-supplier','addSupplier');
         Route::post('edit-supplier/{id}','editSupplier');
+        Route::post('delete-supplier/{id}','deleteSupplier');
     });
 });

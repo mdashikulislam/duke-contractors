@@ -397,7 +397,6 @@ class ClientReportController extends Controller
         $supplier->status = $request->amount;
         $supplier->date = $request->amount;
         $supplier->description = @$request->description;
-
         if ($supplier->save()){
             return response()->json([
                 'status' => true,
@@ -408,6 +407,85 @@ class ClientReportController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Data not saved',
+                'data' => null
+            ]);
+        }
+    }
+
+    public function editSupplier($id,Request $request)
+    {
+        $supplier = Expense::where('id',$id)->where('type','Supplies')->first();
+        if (empty($supplier)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Supplier not found',
+                'data' => null
+            ]);
+        }
+        $validator = \Validator::make($request->all(),[
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'invoice'=>['required','string'],
+            'company'=>['required','numeric','exists:\App\Models\OtherCompany,id'],
+            'amount'=>['required','between:1,99999999999'],
+            'status'=>['nullable','in:Paid,Pending'],
+            'date'=>['required','date_format:Y-m-d'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $supplier->lead_id = $request->lead_id;
+        $supplier->type = 'Supplies';
+        $supplier->invoice = $request->invoice;
+        $supplier->company_id = $request->company;
+        $supplier->amount = $request->amount;
+        $supplier->status = $request->amount;
+        $supplier->date = $request->amount;
+        $supplier->description = @$request->description;
+        if ($supplier->save()){
+            return response()->json([
+                'status' => true,
+                'message' => 'Data update successfully',
+                'data' => null
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Data not update',
+                'data' => null
+            ]);
+        }
+    }
+
+    public function deleteSupplier($id)
+    {
+        $supplier = Expense::where('id',$id)->where('type','Supplies')->first();
+        if (empty($supplier)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Supplier not found',
+                'data' => null
+            ]);
+        }
+        if ($supplier->delete()){
+            return response()->json([
+                'status' => true,
+                'message' => 'Data delete successfully',
+                'data' => null
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Data not delete',
                 'data' => null
             ]);
         }

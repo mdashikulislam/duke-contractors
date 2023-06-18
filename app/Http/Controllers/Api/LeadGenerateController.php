@@ -94,12 +94,14 @@ class LeadGenerateController extends Controller
             }
             if (!empty($request->product_data)){
                 foreach ($request->product_data as $data) {
-                    $leadProduct = new LeadProduct();
-                    $leadProduct->lead_id = $request->lead_id;
-                    $leadProduct->product_id = $data['id'];
-                    $leadProduct->quantity = @$data['quantity'] ?? 0;
-                    $leadProduct->type = "Material";
-                    $leadProduct->save();
+                    if ($data['id'] > 0){
+                        $leadProduct = new LeadProduct();
+                        $leadProduct->lead_id = $request->lead_id;
+                        $leadProduct->product_id = $data['id'];
+                        $leadProduct->quantity = @$data['quantity'] ?? 0;
+                        $leadProduct->type = "Material";
+                        $leadProduct->save();
+                    }
                 }
             }
             Lead::where('id', $request->lead_id)->update(['is_estimate' => 1]);

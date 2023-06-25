@@ -128,8 +128,11 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-        $companyId = 0;
         $roofType = RoofType::where('lead_id', $leadId)->first();
+
+
+
+        $companyId = 0;
         if (empty($roofType)) {
             return response()->json([
                 'status' => false,
@@ -143,6 +146,35 @@ class LeadGenerateController extends Controller
             $company = $roofType->company_id;
         }
 
+        $comb1 = [];
+        $comb2 = [];
+        $finalComb = [];
+        if ($roofType->tile == 1){
+            $comb1[] = 'Tile';
+        }
+        if ($roofType->metal == 1){
+            $comb1[] = 'Metal';
+        }
+        if ($roofType->shingle == 1){
+            $comb1[] = 'Shingle';
+        }
+        if ($roofType->flat == 1){
+            $comb2[] = 'Flat';
+        }
+        if ($roofType->tpo == 1){
+            $comb2[] = 'Tpo';
+        }
+        if (!empty($comb1)){
+            foreach ($comb1 as $com){
+                if (!empty($comb2)){
+                    foreach ($comb2 as $com2){
+                        $finalComb[] = $com.'|'.$com2;
+                    }
+                }else{
+                    $finalComb[] = $com;
+                }
+            }
+        }
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
             ->with(['item' => function ($q) use ($company) {
             $q->where('company_id', $company);
@@ -159,20 +191,47 @@ class LeadGenerateController extends Controller
             ->groupBy('products.id')
             ->get();
 
-        $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')->with(['item' => function ($q) use ($company) {
-            $q->where('company_id', $company);
-        }])
-            ->leftJoin('lead_products', function ($s) use ($leadId) {
-                $s->on('lead_products.product_id', '=', 'products.id');
-                $s->where('lead_products.lead_id', $leadId);
-            })
-            ->whereHas('item', function ($q) use ($company) {
-                $q->where('company_id', $company);
-            })
-            ->where('products.is_default', 0)
-            ->where('products.type', 'Material')
-            ->groupBy('products.id')
-            ->get();
+        $category = [];
+        if ($request->combination){
+            $category = explode('|',$request->combination);
+        }else{
+            $category = explode('|',$finalComb[0]);
+        }
+        $material = [];
+
+        if ($category){
+            foreach ($category as $cs){
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
+                    ->leftJoin('lead_products',function ($s) use($cs,$request){
+                        $s->on('lead_products.product_id','=','products.id');
+                        $s->where('lead_products.category','=',$cs);
+                        $s->where('lead_products.lead_id', $request->lead_id);
+                    })
+                    ->where('products.type','Material')
+                    ->with(['item'=>function($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    }])
+                    ->whereHas('item',function ($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    })
+                    ->with(['category'=>function($s) use($cs){
+                        $s->where('name',$cs);
+                    }])
+                    ->whereHas('category',function ($s) use($cs){
+                        $s->where('name',$cs);
+                    })
+                    ->where('products.is_default',0)
+                    ->groupBy('products.id')
+                    ->get();
+                if (!empty($materialProduct)){
+                    foreach ($materialProduct as $product){
+                        $material[] = $product;
+                    }
+                }
+            }
+        }
+
+
 
 
         $otherProduct = LeadProduct::with(['products' => function ($s) use ($companyId) {
@@ -189,9 +248,10 @@ class LeadGenerateController extends Controller
             'message' => '',
             'data' => [
                 'lead' => $lead,
+                'combination'=>$finalComb,
                 'roofType' => $roofType,
                 'defaultProduct' => $defaultProduct,
-                'materialProduct' => $materialProduct,
+                'materialProduct' => $material,
                 'otherProducts' => $otherProduct
             ]
         ]);

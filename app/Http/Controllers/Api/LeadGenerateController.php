@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadProduct;
 use App\Models\Product;
+use App\Models\RoofData;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
 
@@ -35,10 +36,12 @@ class LeadGenerateController extends Controller
             'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
             'iso' => ['required', 'in:Yes,No'],
             'deck_type' => ['required', 'exists:\App\Models\DeckType,id'],
+            'roof_snap' => ['required'],
+            'eagle_view' => ['required'],
             'tax' => ['required', 'between:0,100'],
-            'product_data' => ['nullable', 'array'],
-            'product_data.*.id' => ['nullable', 'numeric'],
-            'product_data.*.quantity' => ['nullable', 'numeric'],
+            'product_data' => ['required', 'array'],
+            'product_data.*.id' => ['required', 'numeric','exists:\App\Models\Product,id'],
+            'product_data.*.quantity' => ['required', 'numeric'],
         ]);
         if ($validator->fails()) {
             $errors = "";
@@ -64,6 +67,45 @@ class LeadGenerateController extends Controller
         if (RoofType::where('lead_id', $request->lead_id)->exists()){
             RoofType::where('lead_id', $request->lead_id)->delete();
         }
+        if (LeadProduct::where('lead_id', $request->lead_id)->exists()){
+            LeadProduct::where('lead_id', $request->lead_id)->delete();
+        }
+        if (RoofData::where('lead_id',$request->lead_id)->exists()){
+            RoofData::where('lead_id',$request->lead_id)->delete();
+        }
+
+        $comb1 = [];
+        $comb2 = [];
+        $finalComb = [];
+        if ($request->tile == 1){
+            $comb1[] = 'Tile';
+        }
+        if ($request->metal == 1){
+            $comb1[] = 'Metal';
+        }
+        if ($request->shingle == 1){
+            $comb1[] = 'Shingle';
+        }
+        if ($request->flat == 1){
+            $comb2[] = 'Flat';
+        }
+        if ($request->tpo == 1){
+            $comb2[] = 'Tpo';
+        }
+        if (!empty($comb1)){
+            foreach ($comb1 as $com){
+                if (!empty($comb2)){
+                    foreach ($comb2 as $com2){
+                        $finalComb[] = $com.'|'.$com2;
+                    }
+                }else{
+                    $finalComb[] = $com;
+                }
+            }
+        }else{
+            $finalComb = $comb2;
+        }
+
         \DB::beginTransaction();
         try {
             $type = new RoofType();
@@ -85,18 +127,38 @@ class LeadGenerateController extends Controller
             $type->tax = $request->tax;
             $type->company_id = @Company::where('is_default', 1)->first()->id ?? 1;
             $type->save();
-            if (LeadProduct::where('lead_id', $request->lead_id)->exists()){
-                LeadProduct::where('lead_id', $request->lead_id)->delete();
+            if (!empty($finalComb)){
+                foreach ($finalComb as $fc){
+                    $roofData = new RoofData();
+                    $roofData->lead_id = $request->lead_id;
+                    $roofData->combination = $fc;
+                    $roofData->roof_snap = $request->roof_snap;
+                    $roofData->eagle_view = $request->eagle_view;
+                    $roofData->save();
+                }
             }
             if (!empty($request->product_data)){
                 foreach ($request->product_data as $data) {
                     if ($data['id'] > 0){
-                        $leadProduct = new LeadProduct();
-                        $leadProduct->lead_id = $request->lead_id;
-                        $leadProduct->product_id = $data['id'];
-                        $leadProduct->quantity = @$data['quantity'] ?? 0;
-                        $leadProduct->type = "Material";
-                        $leadProduct->save();
+                        foreach ($finalComb as $fc){
+                            $catList = explode('|',$fc);
+                            $exist = Product::where('type','Material')
+                                ->where('is_default',1)
+                                ->where('id',$data['id'])
+                                ->whereHas('category',function ($q) use ($catList){
+                                    $q->whereIn('name',$catList);
+                                })
+                                ->exists();
+                            if ($exist){
+                                $leadProduct = new LeadProduct();
+                                $leadProduct->lead_id = $request->lead_id;
+                                $leadProduct->product_id = $data['id'];
+                                $leadProduct->combination = $fc;
+                                $leadProduct->quantity = @$data['quantity'] ?? 0;
+                                $leadProduct->type = "Material";
+                                $leadProduct->save();
+                            }
+                        }
                     }
                 }
             }
@@ -174,6 +236,8 @@ class LeadGenerateController extends Controller
                     $finalComb[] = $com;
                 }
             }
+        }else{
+            $finalComb = $comb2;
         }
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
             ->with(['item' => function ($q) use ($company) {

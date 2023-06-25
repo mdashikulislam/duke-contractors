@@ -439,9 +439,7 @@ class ProductController extends Controller
                 'data' => null
             ];
         }
-
         return response()->json($response);
-
     }
 
     public function delete($id)

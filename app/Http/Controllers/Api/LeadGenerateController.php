@@ -35,8 +35,6 @@ class LeadGenerateController extends Controller
             'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
             'iso' => ['required', 'in:Yes,No'],
             'deck_type' => ['required', 'exists:\App\Models\DeckType,id'],
-            'roof_snap' => ['required'],
-            'eagle_view' => ['required'],
             'tax' => ['required', 'between:0,100'],
             'product_data' => ['nullable', 'array'],
             'product_data.*.id' => ['nullable', 'numeric'],
@@ -84,8 +82,6 @@ class LeadGenerateController extends Controller
             $type->slope_2 = $request->slope_2;
             $type->iso = $request->iso;
             $type->deck_type = $request->deck_type;
-            $type->roof_snap = $request->roof_snap;
-            $type->eagle_view = $request->eagle_view;
             $type->tax = $request->tax;
             $type->company_id = @Company::where('is_default', 1)->first()->id ?? 1;
             $type->save();

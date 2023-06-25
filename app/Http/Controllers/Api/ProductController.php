@@ -244,7 +244,8 @@ class ProductController extends Controller
     public function productList(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id']
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'combination'=>['required','string']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -269,21 +270,10 @@ class ProductController extends Controller
             ]);
         }
         $category = [];
-        if ($roofType->tile == 1){
-            $category[] = 'Tile';
+        if ($request->combination){
+            $category = explode('|',$request->combination);
         }
-        if ($roofType->metal == 1){
-            $category[] = 'Metal';
-        }
-        if ($roofType->shingle == 1){
-            $category[] = 'Shingle';
-        }
-        if ($roofType->flat == 1){
-            $category[] = 'Flat';
-        }
-        if ($roofType->tpo == 1){
-            $category[] = 'Tpo';
-        }
+
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
             ->with(['item' => function ($q) use ($roofType) {
                 $q->where('company_id', $roofType->company_id);
@@ -306,7 +296,7 @@ class ProductController extends Controller
                 $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
                     ->leftJoin('lead_products',function ($s) use($cs,$request){
                         $s->on('lead_products.product_id','=','products.id');
-                        $s->where('lead_products.category','=',$cs);
+                        //$s->where('lead_products.category','=',$cs);
                         $s->where('lead_products.lead_id', $request->lead_id);
                     })
                     ->where('products.type','Material')
@@ -556,6 +546,33 @@ class ProductController extends Controller
         ]);
     }
 
+    public function searchDefaultProduct(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'company_id'=>['nullable','numeric','exists:\App\Models\Company,id'],
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id']
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $leadId = $request->lead_id;
+        if ($request->company_id){
+            $company = $request->company_id;
+        }else{
+            $company = Company::where('is_default',1)->first()->id;
+        }
+
+    }
     public function productOwnCategory()
     {
         return response()->json([

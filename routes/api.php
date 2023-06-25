@@ -93,6 +93,7 @@ Route::middleware('auth:api')->group(function (){
             Route::post('delete-product/{id}','delete');
         });
         Route::get('get-default-product','getDefaultProduct');
+        Route::post('search-default-product','searchDefaultProduct');
         Route::get('get-product-own-category-list','productOwnCategory');
     });
     Route::controller(LeadGenerateController::class)->group(function (){

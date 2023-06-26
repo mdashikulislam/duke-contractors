@@ -273,7 +273,6 @@ class ProductController extends Controller
         if ($request->combination){
             $category = explode('|',$request->combination);
         }
-
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
             ->with(['item' => function ($q) use ($roofType) {
                 $q->where('company_id', $roofType->company_id);
@@ -550,7 +549,8 @@ class ProductController extends Controller
     {
         $validator = \Validator::make($request->all(),[
             'company_id'=>['nullable','numeric','exists:\App\Models\Company,id'],
-            'category'=>['required','array']
+            'category'=>['required','array'],
+            'keyword'=>['nullable','string']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -565,7 +565,6 @@ class ProductController extends Controller
             ];
             return response()->json($response);
         }
-        $leadId = $request->lead_id;
         if ($request->company_id){
             $company = $request->company_id;
         }else{
@@ -575,8 +574,11 @@ class ProductController extends Controller
         $product = Product::where('is_default',1)
             ->whereHas('category',function ($q) use($category){
                 $q->whereIn('name',$category);
-            })
-            ->where('type','Material')
+            });
+        if ($request->keyword){
+            $product = $product->where('name','LIKE',"%$request->keyword%");
+        }
+        $product =$product ->where('type','Material')
             ->get();
         return response()->json([
             'status' => true,

@@ -550,7 +550,7 @@ class ProductController extends Controller
     {
         $validator = \Validator::make($request->all(),[
             'company_id'=>['nullable','numeric','exists:\App\Models\Company,id'],
-            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id']
+            'category'=>['required','array']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -571,7 +571,20 @@ class ProductController extends Controller
         }else{
             $company = Company::where('is_default',1)->first()->id;
         }
-
+        $category = $request->category;
+        $product = Product::where('is_default',1)
+            ->whereHas('category',function ($q) use($category){
+                $q->whereIn('name',$category);
+            })
+            ->where('type','Material')
+            ->get();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'products'=>$product
+            ]
+        ]);
     }
     public function productOwnCategory()
     {

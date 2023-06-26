@@ -190,10 +190,24 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
+        $validator = \Validator::make($request->all(),[
+            'combination'=>['nullable','string'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+
         $roofType = RoofType::where('lead_id', $leadId)->first();
-
-
-
         $companyId = 0;
         if (empty($roofType)) {
             return response()->json([
@@ -207,6 +221,7 @@ class LeadGenerateController extends Controller
         } else {
             $company = $roofType->company_id;
         }
+
 
         $comb1 = [];
         $comb2 = [];
@@ -239,37 +254,45 @@ class LeadGenerateController extends Controller
         }else{
             $finalComb = $comb2;
         }
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+
+        $category = [];
+        $combination = '';
+        if ($request->combination){
+            $category = explode('|',$request->combination);
+            $combination = $request->combination;
+        }else{
+            $category = explode('|',$finalComb[0]);
+            $combination = $finalComb[0];
+        }
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
             ->with(['item' => function ($q) use ($company) {
             $q->where('company_id', $company);
         }])
-            ->leftJoin('lead_products', function ($s) use ($leadId) {
+            ->leftJoin('lead_products', function ($s) use ($leadId,$combination) {
                 $s->on('lead_products.product_id', '=', 'products.id');
                 $s->where('lead_products.lead_id', $leadId);
+                $s->where('lead_products.combination', $combination);
             })
             ->whereHas('item', function ($q) use ($company) {
                 $q->where('company_id', $company);
+            })
+            ->whereHas('category',function ($q) use($combination){
+                $q->whereIn('name',explode('|',$combination));
             })
             ->where('products.is_default', 1)
             ->where('products.type', 'Material')
             ->groupBy('products.id')
             ->get();
+        return $defaultProduct;
 
-        $category = [];
-        if ($request->combination){
-            $category = explode('|',$request->combination);
-        }else{
-            $category = explode('|',$finalComb[0]);
-        }
         $material = [];
-
         if ($category){
             foreach ($category as $cs){
-                $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
-                    ->leftJoin('lead_products',function ($s) use($cs,$request){
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
+                    ->leftJoin('lead_products',function ($s) use($cs,$leadId){
                         $s->on('lead_products.product_id','=','products.id');
-                        $s->where('lead_products.category','=',$cs);
-                        $s->where('lead_products.lead_id', $request->lead_id);
+                        //$s->where('lead_products.category','=',$cs);
+                        $s->where('lead_products.lead_id', $leadId);
                     })
                     ->where('products.type','Material')
                     ->with(['item'=>function($s) use($roofType){

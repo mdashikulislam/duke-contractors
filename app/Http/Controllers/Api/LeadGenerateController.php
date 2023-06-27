@@ -319,15 +319,15 @@ class LeadGenerateController extends Controller
             }
         }
 
-        $otherProduct = LeadProduct::with(['products' => function ($s) use ($companyId) {
-            $s->with('item');
-            $s->whereHas('item');
-        }])
-            ->whereHas('products', function ($s) use ($companyId) {
-                $s->whereHas('item');
-            })
-            ->where('type', '!=', 'Material')
-            ->where('lead_id', $leadId)->get();
+        $otherProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')->leftJoin('lead_products',function ($s) use($leadId,$combination){
+            $s->on('lead_products.product_id', '=', 'products.id');
+            $s->where('lead_products.lead_id', $leadId);
+            $s->where('lead_products.combination', $combination);
+        })
+        ->with('item')
+        ->whereHas('item')
+        ->where('products.type','!=','Material')
+        ->get();
         return response()->json([
             'status' => true,
             'message' => '',

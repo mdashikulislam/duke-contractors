@@ -334,6 +334,7 @@ class LeadGenerateController extends Controller
             'data' => [
                 'lead' => $lead,
                 'combination'=>$finalComb,
+                'current_combination'=>$combination,
                 'roofType' => $roofType,
                 'roofData' => $roofData,
                 'defaultProduct' => $defaultProduct,

@@ -283,7 +283,6 @@ class LeadGenerateController extends Controller
             ->where('products.type', 'Material')
             ->groupBy('products.id')
             ->get();
-        return $defaultProduct;
 
         $material = [];
         if ($category){

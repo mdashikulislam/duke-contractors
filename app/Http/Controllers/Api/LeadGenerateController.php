@@ -139,7 +139,7 @@ class LeadGenerateController extends Controller
             }
             if (!empty($request->product_data)){
                 foreach ($request->product_data as $data) {
-                    if ($data['id'] > 0){
+                    if ($data['product_id'] > 0){
                         foreach ($finalComb as $fc){
                             $catList = explode('|',$fc);
                             $exist = Product::where('type','Material')

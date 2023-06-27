@@ -40,7 +40,7 @@ class LeadGenerateController extends Controller
             'eagle_view' => ['required'],
             'tax' => ['required', 'between:0,100'],
             'product_data' => ['required', 'array'],
-            'product_data.*.id' => ['required', 'numeric','exists:\App\Models\Product,id'],
+            'product_data.*.product_id' => ['required', 'numeric','exists:\App\Models\Product,id'],
             'product_data.*.quantity' => ['required', 'numeric'],
         ]);
         if ($validator->fails()) {
@@ -144,7 +144,7 @@ class LeadGenerateController extends Controller
                             $catList = explode('|',$fc);
                             $exist = Product::where('type','Material')
                                 ->where('is_default',1)
-                                ->where('id',$data['id'])
+                                ->where('id',$data['product_id'])
                                 ->whereHas('category',function ($q) use ($catList){
                                     $q->whereIn('name',$catList);
                                 })
@@ -152,7 +152,7 @@ class LeadGenerateController extends Controller
                             if ($exist){
                                 $leadProduct = new LeadProduct();
                                 $leadProduct->lead_id = $request->lead_id;
-                                $leadProduct->product_id = $data['id'];
+                                $leadProduct->product_id = $data['product_id'];
                                 $leadProduct->combination = $fc;
                                 $leadProduct->quantity = @$data['quantity'] ?? 0;
                                 $leadProduct->type = "Material";

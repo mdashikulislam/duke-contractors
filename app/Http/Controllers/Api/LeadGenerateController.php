@@ -222,7 +222,6 @@ class LeadGenerateController extends Controller
             $company = $roofType->company_id;
         }
 
-
         $comb1 = [];
         $comb2 = [];
         $finalComb = [];
@@ -264,6 +263,9 @@ class LeadGenerateController extends Controller
             $category = explode('|',$finalComb[0]);
             $combination = $finalComb[0];
         }
+        $roofData = RoofData::where('lead_id', $leadId)
+            ->where('combination',$combination)
+            ->first();
         $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
             ->with(['item' => function ($q) use ($company) {
             $q->where('company_id', $company);
@@ -317,9 +319,6 @@ class LeadGenerateController extends Controller
             }
         }
 
-
-
-
         $otherProduct = LeadProduct::with(['products' => function ($s) use ($companyId) {
             $s->with('item');
             $s->whereHas('item');
@@ -336,6 +335,7 @@ class LeadGenerateController extends Controller
                 'lead' => $lead,
                 'combination'=>$finalComb,
                 'roofType' => $roofType,
+                'roofData' => $roofData,
                 'defaultProduct' => $defaultProduct,
                 'materialProduct' => $material,
                 'otherProducts' => $otherProduct

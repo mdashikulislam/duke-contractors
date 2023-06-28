@@ -467,6 +467,7 @@ class LeadGenerateController extends Controller
         $validator = \Validator::make($request->all(), [
             'lead_id' => ['required', 'numeric', 'exists:\App\Models\Lead,id'],
             'company_id' => ['required', 'numeric', 'exists:\App\Models\Company,id'],
+            'combination' => ['required', 'string'],
             'material_product_data' => ['nullable', 'array'],
             'material_product_data.*.product_id' => ['required', 'numeric'],
             'material_product_data.*.quantity' => ['required', 'numeric'],
@@ -505,20 +506,25 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-        $roofType = RoofType::where('lead_id', $lead->id)->first();
-        $roofType->miscellaneous = $request->miscellaneous;
-        $roofType->desire_profit = $request->company_id;
-        $roofType->seller_commission = $request->seller_commission;
-        $roofType->office_commission = $request->office_commission;
-        $roofType->final_contract_price = $request->final_contract_price;
+        $roofType = RoofType::where('lead_id',$lead->id)->first();
         $roofType->company_id = $request->company_id;
-        $roofType->labor_total = $request->labor_total ?? 0;
-        $roofType->trash_total = $request->trash_total ?? 0;
-        $roofType->permit_total = $request->permit_total ?? 0;
-        $roofType->supplies_total = $request->supplies_total ?? 0;
         $roofType->save();
+        $roofData = RoofData::where('lead_id', $lead->id)->first();
+        $roofData->combination = $request->combination;
+        $roofData->roof_snap = $request->roof_snap;
+        $roofData->eagle_view = $request->eagle_view;
+        $roofData->miscellaneous = $request->miscellaneous;
+        $roofData->desire_profit = $request->company_id;
+        $roofData->seller_commission = $request->seller_commission;
+        $roofData->office_commission = $request->office_commission;
+        $roofData->final_contract_price = $request->final_contract_price;
+        $roofData->labor_total = $request->labor_total ?? 0;
+        $roofData->trash_total = $request->trash_total ?? 0;
+        $roofData->permit_total = $request->permit_total ?? 0;
+        $roofData->supplies_total = $request->supplies_total ?? 0;
+        $roofData->save();
+        LeadProduct::where('lead_id', $lead->id)->where('type', 'Material')->delete();
         if (!empty($request->material_product_data)) {
-            LeadProduct::where('lead_id', $lead->id)->where('type', 'Material')->delete();
             foreach ($request->material_product_data as $data) {
                 LeadProduct::create([
                     'lead_id' => $lead->id,
@@ -529,8 +535,8 @@ class LeadGenerateController extends Controller
                 ]);
             }
         }
+        LeadProduct::where('lead_id', $lead->id)->where('type', '!=', 'Material')->delete();
         if (!empty($request->other_product_data)) {
-            LeadProduct::where('lead_id', $lead->id)->where('type', '!=', 'Material')->delete();
             foreach ($request->other_product_data as $data) {
                 LeadProduct::create([
                     'lead_id' => $lead->id,

@@ -484,6 +484,8 @@ class LeadGenerateController extends Controller
             'trash_total' => ['nullable', 'between:0,999999999999'],
             'permit_total' => ['nullable', 'between:0,999999999999'],
             'supplies_total' => ['nullable', 'between:0,999999999999'],
+            'roof_snap' => ['required'],
+            'eagle_view' => ['nullable'],
         ]);
         if ($validator->fails()) {
             $errors = "";

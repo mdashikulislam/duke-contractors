@@ -97,13 +97,13 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
-            'product_data.*.company_id'=>['required','numeric','min:1'],
             'product_data.*.unit_price'=>['required','numeric','min:1'],
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
         ];
         if ($request->type == 'Material'){
             $rules['is_default'] =['nullable','numeric','between:0,1'];
+            $rules['product_data.*.company_id']=['required','numeric','min:1'];
             $rules['category']=['required','max:255','array'];
             $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
             $rules['wood_type']= ['required','in:None,Plywood,Fasica'];

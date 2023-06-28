@@ -509,8 +509,14 @@ class LeadGenerateController extends Controller
         $roofType = RoofType::where('lead_id',$lead->id)->first();
         $roofType->company_id = $request->company_id;
         $roofType->save();
-        $roofData = RoofData::where('lead_id', $lead->id)->first();
-        $roofData->combination = $request->combination;
+        $roofData = RoofData::where('lead_id', $lead->id)
+            ->where('combination',$request->combination)
+            ->first();
+        if (empty($roofData)){
+            $roofData = new RoofData();
+            $roofData->lead_id = $lead->id;
+            $roofData->combination = $request->combination;
+        }
         $roofData->roof_snap = $request->roof_snap;
         $roofData->eagle_view = $request->eagle_view;
         $roofData->miscellaneous = $request->miscellaneous;
@@ -523,7 +529,9 @@ class LeadGenerateController extends Controller
         $roofData->permit_total = $request->permit_total ?? 0;
         $roofData->supplies_total = $request->supplies_total ?? 0;
         $roofData->save();
-        LeadProduct::where('lead_id', $lead->id)->where('type', 'Material')->delete();
+        LeadProduct::where('lead_id', $lead->id)
+            ->where('combination',$request->combination)
+            ->where('type', 'Material')->delete();
         if (!empty($request->material_product_data)) {
             foreach ($request->material_product_data as $data) {
                 LeadProduct::create([
@@ -531,18 +539,22 @@ class LeadGenerateController extends Controller
                     'product_id' => $data['product_id'],
                     'category' => @$data['category'] ?? null,
                     'type' => 'Material',
-                    'quantity' => $data['quantity']
+                    'quantity' => $data['quantity'],
+                    'combination' => $request->combination
                 ]);
             }
         }
-        LeadProduct::where('lead_id', $lead->id)->where('type', '!=', 'Material')->delete();
+        LeadProduct::where('lead_id', $lead->id)
+            ->where('combination',$request->combination)
+            ->where('type', '!=', 'Material')->delete();
         if (!empty($request->other_product_data)) {
             foreach ($request->other_product_data as $data) {
                 LeadProduct::create([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'type' => $data['type'],
-                    'quantity' => $data['quantity']
+                    'quantity' => $data['quantity'],
+                    'combination' => $request->combination
                 ]);
             }
         }

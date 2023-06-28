@@ -654,4 +654,40 @@ class LeadGenerateController extends Controller
         ]);
 
     }
+
+    public function approvedCombination(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'lead_id' => ['required', 'numeric','exists:\App\Models\Lead,id'],
+            'combination' => ['required', 'string',]
+        ]);
+        if ($validator->fails()) {
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $roofType = RoofType::where('lead_id',$request->lead_id)->first();
+        $roofType->approved_combination = $request->combination;
+        if ($roofType->save()){
+            return response()->json([
+                'status' => true,
+                'message' => 'Approved successful',
+                'data' => null
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Not approved',
+                'data' => null
+            ]);
+        }
+    }
 }

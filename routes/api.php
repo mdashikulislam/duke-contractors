@@ -103,6 +103,7 @@ Route::middleware('auth:api')->group(function (){
        Route::post('add-lead-price','addLeadPrice');
        Route::post('edit-lead-details','editLeadDetails');
        Route::post('low-price-company','lowPriceCompany');
+       Route::post('approved-combination','approvedCombination');
     });
     Route::controller(CityController::class)->group(function (){
        Route::get('get-city-list','index');

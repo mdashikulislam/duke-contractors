@@ -106,7 +106,7 @@ class ProductController extends Controller
             $rules['product_data.*.company_id']=['required','numeric','min:1'];
             $rules['category']=['required','max:255','array'];
             $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
-            $rules['wood_type']= ['required'];
+            $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
         }
         $validator = \Validator::make($request->all(),$rules);
@@ -363,7 +363,7 @@ class ProductController extends Controller
             $rules['category']=['required','max:255','array'];
             $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
             $rules['category.*.formula']=['nullable'];
-            $rules['wood_type']= ['required'];
+            $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
             $rules['is_default'] =['nullable','numeric','between:0,1'];
         }

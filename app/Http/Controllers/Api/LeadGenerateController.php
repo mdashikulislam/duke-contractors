@@ -487,6 +487,7 @@ class LeadGenerateController extends Controller
             'roof_snap' => ['required'],
             'eagle_view' => ['nullable'],
         ]);
+        return $request->combination;
         if ($validator->fails()) {
             $errors = "";
             $e = $validator->errors()->all();

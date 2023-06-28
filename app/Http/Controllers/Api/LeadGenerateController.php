@@ -487,7 +487,6 @@ class LeadGenerateController extends Controller
             'roof_snap' => ['required'],
             'eagle_view' => ['nullable'],
         ]);
-        return $request->combination;
         if ($validator->fails()) {
             $errors = "";
             $e = $validator->errors()->all();
@@ -509,16 +508,17 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
+        $combination = $request->combination;
         $roofType = RoofType::where('lead_id',$lead->id)->first();
         $roofType->company_id = $request->company_id;
         $roofType->save();
         $roofData = RoofData::where('lead_id', $lead->id)
-            ->where('combination',$request->combination)
+            ->where('combination',$combination)
             ->first();
         if (empty($roofData)){
             $roofData = new RoofData();
             $roofData->lead_id = $lead->id;
-            $roofData->combination = $request->combination;
+            $roofData->combination = $combination;
         }
         $roofData->roof_snap = $request->roof_snap;
         $roofData->eagle_view = $request->eagle_view;
@@ -533,7 +533,7 @@ class LeadGenerateController extends Controller
         $roofData->supplies_total = $request->supplies_total ?? 0;
         $roofData->save();
         LeadProduct::where('lead_id', $lead->id)
-            ->where('combination',$request->combination)
+            ->where('combination',$combination)
             ->where('type', 'Material')->delete();
         if (!empty($request->material_product_data)) {
             foreach ($request->material_product_data as $data) {
@@ -543,7 +543,7 @@ class LeadGenerateController extends Controller
                     'category' => @$data['category'] ?? null,
                     'type' => 'Material',
                     'quantity' => $data['quantity'],
-                    'combination' => $request->combination
+                    'combination' => $combination
                 ]);
             }
         }
@@ -557,7 +557,7 @@ class LeadGenerateController extends Controller
                     'product_id' => $data['product_id'],
                     'type' => $data['type'],
                     'quantity' => $data['quantity'],
-                    'combination' => $request->combination
+                    'combination' => $combination
                 ]);
             }
         }

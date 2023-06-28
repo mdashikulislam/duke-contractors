@@ -290,9 +290,9 @@ class LeadGenerateController extends Controller
         if ($category){
             foreach ($category as $cs){
                 $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
-                    ->leftJoin('lead_products',function ($s) use($cs,$leadId){
+                    ->leftJoin('lead_products',function ($s) use($cs,$leadId,$combination){
                         $s->on('lead_products.product_id','=','products.id');
-                        //$s->where('lead_products.category','=',$cs);
+                        $s->where('lead_products.combination','=',$combination);
                         $s->where('lead_products.lead_id', $leadId);
                     })
                     ->where('products.type','Material')

@@ -633,7 +633,6 @@ class LeadGenerateController extends Controller
                 $total[] = $companyWise;
             }
         }
-        return $total;
         $arrSum = [];
         if (!empty($total)) {
             foreach ($companies as $cp) {

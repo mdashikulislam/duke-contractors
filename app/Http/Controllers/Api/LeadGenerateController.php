@@ -626,14 +626,14 @@ class LeadGenerateController extends Controller
                         ->whereHas('item', function ($p) use ($companyId) {
                             $p->where('company_id', $companyId);
                         })
-                        ->where('id', $data['id'])
-                        ->where('type', 'Material')->first();
+                        ->where('id', $data['id'])->first();
                     $cost = (int)$data['quantity'] * (float)@$materialProduct->item->unit_price ?? 0;
                     $companyWise[$companyId] = $cost;
                 }
                 $total[] = $companyWise;
             }
         }
+        return $total;
         $arrSum = [];
         if (!empty($total)) {
             foreach ($companies as $cp) {

@@ -293,6 +293,7 @@ class LeadGenerateController extends Controller
                     ->leftJoin('lead_products',function ($s) use($cs,$leadId,$combination){
                         $s->on('lead_products.product_id','=','products.id');
                         $s->where('lead_products.combination','=',$combination);
+                        $s->where('lead_products.category','=',$cs);
                         $s->where('lead_products.lead_id', $leadId);
                     })
                     ->where('products.type','Material')
@@ -545,7 +546,8 @@ class LeadGenerateController extends Controller
         $roofData->save();
         LeadProduct::where('lead_id', $lead->id)
             ->where('combination',$combination)
-            ->where('type', 'Material')->delete();
+            ->where('type', 'Material')
+            ->delete();
         if (!empty($request->material_product_data)) {
             foreach ($request->material_product_data as $data) {
                 LeadProduct::create([

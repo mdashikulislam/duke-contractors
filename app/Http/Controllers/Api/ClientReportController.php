@@ -10,6 +10,7 @@ use App\Models\Expense;
 use App\Models\InspectionResult;
 use App\Models\JobType;
 use App\Models\Lead;
+use App\Models\RoofData;
 use App\Models\RoofingInformation;
 use App\Models\RoofType;
 use App\Models\SellerCommission;
@@ -38,14 +39,16 @@ class ClientReportController extends Controller
         }
         $leadId = $request->lead_id;
 
-        $lead = Lead::with('jobTypes')->whereHas('jobTypes')->with('cityOfPermit')
+        $lead = Lead::with('jobTypes')
+            ->whereHas('jobTypes')
+            ->with('cityOfPermit')
             ->with('sellers')
             ->where('id',$leadId)->first();
         $roofType = RoofType::where('lead_id',$leadId)->first();
+        $roofData = RoofData::where('lead_id',$leadId)->where('combination',$roofType->approved_combination)->first();
         $customerPayments = CustomerPayment::where('lead_id',$leadId)->get();
         $inspectionResults = InspectionResult::where('lead_id',$leadId)->get();
         $expenses = Expense::where('lead_id',$leadId)->get();
-
         $sellerCommission = SellerCommission::where('lead_id',$leadId)->get();
         $contractPrice = ContractPrice::where('lead_id',$leadId)->get();
         $roofingInformation = RoofingInformation::where('lead_id',$leadId)->get();
@@ -57,6 +60,7 @@ class ClientReportController extends Controller
             'data' => [
                 'lead'=>$lead,
                 'roofType'=>$roofType,
+                'roofData'=>$roofData,
                 'customerPayments'=>$customerPayments,
                 'inspectionResults'=>$inspectionResults,
                 'expenses'=>$expenses,

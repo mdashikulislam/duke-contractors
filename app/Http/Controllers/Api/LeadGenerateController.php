@@ -486,6 +486,11 @@ class LeadGenerateController extends Controller
             'supplies_total' => ['nullable', 'between:0,999999999999'],
             'roof_snap' => ['required'],
             'eagle_view' => ['nullable'],
+            'slope_1' => ['required', 'numeric', 'between:1,12'],
+            'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
+            'iso' => ['required', 'in:Yes,No'],
+            'deck_type' => ['required', 'exists:\App\Models\DeckType,id'],
+            'tax' => ['required', 'between:0,100'],
         ]);
         if ($validator->fails()) {
             $errors = "";
@@ -508,9 +513,15 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
+
         $combination = $request->combination;
         $roofType = RoofType::where('lead_id',$lead->id)->first();
         $roofType->company_id = $request->company_id;
+        $roofType->slope_1 = $request->slope_1;
+        $roofType->slope_2 = $request->slope_2;
+        $roofType->iso = $request->iso;
+        $roofType->deck_type = $request->deck_type;
+        $roofType->tax = $request->tax;
         $roofType->save();
         $roofData = RoofData::where('lead_id', $lead->id)
             ->where('combination',$combination)
@@ -523,7 +534,7 @@ class LeadGenerateController extends Controller
         $roofData->roof_snap = $request->roof_snap;
         $roofData->eagle_view = $request->eagle_view;
         $roofData->miscellaneous = $request->miscellaneous;
-        $roofData->desire_profit = $request->company_id;
+        $roofData->desire_profit = $request->desire_profit;
         $roofData->seller_commission = $request->seller_commission;
         $roofData->office_commission = $request->office_commission;
         $roofData->final_contract_price = $request->final_contract_price;

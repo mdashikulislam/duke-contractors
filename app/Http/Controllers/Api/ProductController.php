@@ -97,17 +97,16 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
+            'product_data.*.unit_price'=>['required','numeric','min:1'],
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
         ];
         if ($request->type == 'Material'){
             $rules['is_default'] =['nullable','numeric','between:0,1'];
-            if ($request->is_default == 0){
-                $rules['category']=['required','max:255','array'];
-                $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
-                $rules['category.*.formula']=['nullable'];
-            }
-            $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
+            $rules['product_data.*.company_id']=['required','numeric','min:1'];
+            $rules['category']=['required','max:255','array'];
+            $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
+            $rules['wood_type']= ['required','in:None,Fasica,Plywood'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
         }
         $validator = \Validator::make($request->all(),$rules);
@@ -129,7 +128,6 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
-
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
@@ -149,14 +147,12 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type == 'Material'){
-                if ($request->is_default == 0) {
-                    foreach ($request->category as $cat) {
-                        $category = new ProductCategory();
-                        $category->product_id = $product->id;
-                        $category->name = $cat['name'];
-                        $category->formula = @$cat['formula'];
-                        $category->save();
-                    }
+                foreach ($request->category as $cat) {
+                    $category = new ProductCategory();
+                    $category->product_id = $product->id;
+                    $category->name = $cat['name'];
+                    $category->formula = @$cat['formula'];
+                    $category->save();
                 }
             }
             \DB::commit();
@@ -248,7 +244,8 @@ class ProductController extends Controller
     public function productList(Request $request)
     {
         $validator = \Validator::make($request->all(),[
-            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id']
+            'lead_id'=>['required','numeric','exists:\App\Models\Lead,id'],
+            'combination'=>['required','string']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -273,41 +270,35 @@ class ProductController extends Controller
             ]);
         }
         $category = [];
-        if ($roofType->tile == 1){
-            $category[] = 'Tile';
+        if ($request->combination){
+            $category = explode('|',$request->combination);
         }
-        if ($roofType->metal == 1){
-            $category[] = 'Metal';
-        }
-        if ($roofType->shingle == 1){
-            $category[] = 'Shingle';
-        }
-        if ($roofType->flat == 1){
-            $category[] = 'Flat';
-        }
-        if ($roofType->tpo == 1){
-            $category[] = 'Tpo';
-        }
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')
-            ->leftJoin('lead_products',function ($s){
-                $s->on('lead_products.product_id','=','products.id');
-            })
-            ->where('products.type','Material')
-            ->with(['item'=>function($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')
+            ->with(['item' => function ($q) use ($roofType) {
+                $q->where('company_id', $roofType->company_id);
             }])
-            ->whereHas('item',function ($s) use($roofType){
-                $s->where('company_id',$roofType->company_id);
+            ->leftJoin('lead_products', function ($s) use ($request) {
+                $s->on('lead_products.product_id', '=', 'products.id');
+                $s->where('lead_products.lead_id', $request->lead_id);
             })
-            ->whereHas('categories',function ($s) use($category){
-                $s->whereIn('name',$category);
+            ->whereHas('item', function ($q) use ($roofType) {
+                $q->where('company_id', $roofType->company_id);
             })
-            ->where('products.is_default',1)
+            ->where('products.is_default', 1)
+            ->where('products.type', 'Material')
+            ->groupBy('products.id')
             ->get();
+
         $material = [];
         if ($category){
             foreach ($category as $cs){
-                $materialProduct = Product::where('type','Material')
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity')
+                    ->leftJoin('lead_products',function ($s) use($cs,$request){
+                        $s->on('lead_products.product_id','=','products.id');
+                        $s->where('lead_products.category','=',$cs);
+                        $s->where('lead_products.lead_id', $request->lead_id);
+                    })
+                    ->where('products.type','Material')
                     ->with(['item'=>function($s) use($roofType){
                         $s->where('company_id',$roofType->company_id);
                     }])
@@ -317,10 +308,11 @@ class ProductController extends Controller
                     ->with(['category'=>function($s) use($cs){
                         $s->where('name',$cs);
                     }])
-                    ->whereHas('categories',function ($s) use($cs){
+                    ->whereHas('category',function ($s) use($cs){
                         $s->where('name',$cs);
                     })
-                    ->where('is_default',0)
+                    ->where('products.is_default',0)
+                    ->groupBy('products.id')
                     ->get();
                 if (!empty($materialProduct)){
                     foreach ($materialProduct as $product){
@@ -329,15 +321,21 @@ class ProductController extends Controller
                 }
             }
         }
-        $otherProducts = Product::with('item')
+        $otherProducts = Product::selectRaw('products.*,lead_products.quantity')
+            ->with('item')
             ->whereHas('item')
-            ->where('type','!=','Material')
+            ->leftJoin('lead_products',function ($s) use($request){
+                $s->on('lead_products.product_id','=','products.id');
+                $s->where('lead_products.lead_id', $request->lead_id);
+            })
+            ->where('products.type','!=','Material')
+            ->groupBy('products.id')
             ->get();
         return response()->json([
            'status'=>true,
             'message'=>'',
            'data'=>[
-               'default'=>$defaultProduct,
+                'default'=>$defaultProduct,
                 'materialProduct'=>$material,
                 'otherProducts'=>$otherProducts
            ]
@@ -362,12 +360,10 @@ class ProductController extends Controller
             'dim_covers'=>['nullable','numeric']
         ];
         if ($request->type == 'Material'){
-            if ($request->is_default == 0) {
-                $rules['category']=['required','max:255','array'];
-                $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
-                $rules['category.*.formula']=['nullable'];
-            }
-            $rules['wood_type']= ['required','in:None,Plywood,Fasica'];
+            $rules['category']=['required','max:255','array'];
+            $rules['category.*.name']=['required','in:'.implode(',',PRODUCT_CATEGORY)];
+            $rules['category.*.formula']=['nullable'];
+            $rules['wood_type']= ['required','in:None,Fasica,Plywood'];
             $rules['own_category']=['required','max:255','in:'.implode(',',PRODUCT_CATEGORY_OWN)];
             $rules['is_default'] =['nullable','numeric','between:0,1'];
         }
@@ -409,15 +405,13 @@ class ProductController extends Controller
                 $companyProduct->save();
             }
             if ($request->type =='Material') {
-                if ($request->is_default == 0) {
-                    ProductCategory::where('product_id', $id)->delete();
-                    foreach ($request->category as $cat) {
-                        $category = new ProductCategory();
-                        $category->product_id = $product->id;
-                        $category->name = $cat['name'];
-                        $category->formula = @$cat['formula'];
-                        $category->save();
-                    }
+                ProductCategory::where('product_id', $id)->delete();
+                foreach ($request->category as $cat) {
+                    $category = new ProductCategory();
+                    $category->product_id = $product->id;
+                    $category->name = $cat['name'];
+                    $category->formula = @$cat['formula'];
+                    $category->save();
                 }
             }
             \DB::commit();
@@ -434,9 +428,7 @@ class ProductController extends Controller
                 'data' => null
             ];
         }
-
         return response()->json($response);
-
     }
 
     public function delete($id)
@@ -553,6 +545,49 @@ class ProductController extends Controller
         ]);
     }
 
+    public function searchDefaultProduct(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'company_id'=>['nullable','numeric','exists:\App\Models\Company,id'],
+            'category'=>['required','array'],
+            'keyword'=>['nullable','string']
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        if ($request->company_id){
+            $company = $request->company_id;
+        }else{
+            $company = Company::where('is_default',1)->first()->id;
+        }
+        $category = $request->category;
+        $product = Product::where('is_default',1)
+            ->whereHas('category',function ($q) use($category){
+                $q->whereIn('name',$category);
+            });
+        if ($request->keyword){
+            $product = $product->where('name','LIKE',"%$request->keyword%");
+        }
+        $product =$product ->where('type','Material')
+            ->get();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'products'=>$product
+            ]
+        ]);
+    }
     public function productOwnCategory()
     {
         return response()->json([

@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadProduct;
 use App\Models\Product;
+use App\Models\RoofData;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
 
@@ -21,16 +22,16 @@ class LeadGenerateController extends Controller
     {
         $validator = \Validator::make($request->all(), [
             'lead_id' => ['required', 'numeric'],
-            'tile' => ['numeric', 'between:0,1'],
-            'metal' => ['numeric', 'between:0,1'],
-            'shingle' => ['numeric', 'between:0,1'],
-            'flat' => ['numeric', 'between:0,1'],
-            'tpo' => ['numeric', 'between:0,1'],
-            'tile_current' => ['numeric', 'between:0,1'],
-            'metal_current' => ['numeric', 'between:0,1'],
-            'shingle_current' => ['numeric', 'between:0,1'],
-            'flat_current' => ['numeric', 'between:0,1'],
-            'tpo_current' => ['numeric', 'between:0,1'],
+            'tile' => ['nullable','numeric', 'between:0,1'],
+            'metal' => ['nullable','numeric', 'between:0,1'],
+            'shingle' => ['nullable','numeric', 'between:0,1'],
+            'flat' => ['nullable','numeric', 'between:0,1'],
+            'tpo' => ['nullable','numeric', 'between:0,1'],
+            'tile_current' => ['nullable','numeric', 'between:0,1'],
+            'metal_current' => ['nullable','numeric', 'between:0,1'],
+            'shingle_current' => ['nullable','numeric', 'between:0,1'],
+            'flat_current' => ['nullable','numeric', 'between:0,1'],
+            'tpo_current' => ['nullable','numeric', 'between:0,1'],
             'slope_1' => ['required', 'numeric', 'between:1,12'],
             'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
             'iso' => ['required', 'in:Yes,No'],
@@ -39,7 +40,7 @@ class LeadGenerateController extends Controller
             'eagle_view' => ['required'],
             'tax' => ['required', 'between:0,100'],
             'product_data' => ['required', 'array'],
-            'product_data.*.id' => ['required', 'numeric'],
+            'product_data.*.product_id' => ['required', 'numeric','exists:\App\Models\Product,id'],
             'product_data.*.quantity' => ['required', 'numeric'],
         ]);
         if ($validator->fails()) {
@@ -56,38 +57,110 @@ class LeadGenerateController extends Controller
             return response()->json($response);
         }
 
-        RoofType::where('lead_id', $request->lead_id)->delete();
+        if ($request->tile != 1 && $request->metal != 1 && $request->shingle != 1 && $request->tpo != 1 && $request->flat != 1 ){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please select at least 1 desired roof type',
+                'data' => null
+            ]);
+        }
+        if (RoofType::where('lead_id', $request->lead_id)->exists()){
+            RoofType::where('lead_id', $request->lead_id)->delete();
+        }
+        if (LeadProduct::where('lead_id', $request->lead_id)->exists()){
+            LeadProduct::where('lead_id', $request->lead_id)->delete();
+        }
+        if (RoofData::where('lead_id',$request->lead_id)->exists()){
+            RoofData::where('lead_id',$request->lead_id)->delete();
+        }
+
+        $comb1 = [];
+        $comb2 = [];
+        $finalComb = [];
+        if ($request->tile == 1){
+            $comb1[] = 'Tile';
+        }
+        if ($request->metal == 1){
+            $comb1[] = 'Metal';
+        }
+        if ($request->shingle == 1){
+            $comb1[] = 'Shingle';
+        }
+        if ($request->flat == 1){
+            $comb2[] = 'Flat';
+        }
+        if ($request->tpo == 1){
+            $comb2[] = 'Tpo';
+        }
+        if (!empty($comb1)){
+            foreach ($comb1 as $com){
+                if (!empty($comb2)){
+                    foreach ($comb2 as $com2){
+                        $finalComb[] = $com.'|'.$com2;
+                    }
+                }else{
+                    $finalComb[] = $com;
+                }
+            }
+        }else{
+            $finalComb = $comb2;
+        }
+
         \DB::beginTransaction();
         try {
             $type = new RoofType();
             $type->lead_id = $request->lead_id;
-            $type->tile = $request->tile;
-            $type->metal = $request->metal;
-            $type->shingle = $request->shingle;
-            $type->tpo = $request->tpo;
-            $type->flat = $request->flat;
-            $type->tile_current = $request->tile_current;
-            $type->metal_current = $request->metal_current;
-            $type->shingle_current = $request->shingle_current;
-            $type->flat_current = $request->flat_current;
-            $type->tpo_current = $request->tpo_current;
+            $type->tile = $request->tile ?? 0;
+            $type->metal = $request->metal ?? 0;
+            $type->shingle = $request->shingle ?? 0;
+            $type->tpo = $request->tpo ?? 0;
+            $type->flat = $request->flat ?? 0;
+            $type->tile_current = $request->tile_current ?? 0;
+            $type->metal_current = $request->metal_current ?? 0;
+            $type->shingle_current = $request->shingle_current ?? 0;
+            $type->flat_current = $request->flat_current ?? 0;
+            $type->tpo_current = $request->tpo_current ?? 0;
             $type->slope_1 = $request->slope_1;
             $type->slope_2 = $request->slope_2;
             $type->iso = $request->iso;
             $type->deck_type = $request->deck_type;
-            $type->roof_snap = $request->roof_snap;
-            $type->eagle_view = $request->eagle_view;
             $type->tax = $request->tax;
             $type->company_id = @Company::where('is_default', 1)->first()->id ?? 1;
             $type->save();
-            LeadProduct::where('lead_id', $request->lead_id)->delete();
-            foreach ($request->product_data as $data) {
-                $leadProduct = new LeadProduct();
-                $leadProduct->lead_id = $request->lead_id;
-                $leadProduct->product_id = $data['id'];
-                $leadProduct->quantity = $data['quantity'];
-                $leadProduct->type = "Material";
-                $leadProduct->save();
+            if (!empty($finalComb)){
+                foreach ($finalComb as $fc){
+                    $roofData = new RoofData();
+                    $roofData->lead_id = $request->lead_id;
+                    $roofData->combination = $fc;
+                    $roofData->roof_snap = $request->roof_snap;
+                    $roofData->eagle_view = $request->eagle_view;
+                    $roofData->save();
+                }
+            }
+            if (!empty($request->product_data)){
+                foreach ($request->product_data as $data) {
+                    if ($data['product_id'] > 0){
+                        foreach ($finalComb as $fc){
+                            $catList = explode('|',$fc);
+                            $exist = Product::where('type','Material')
+                                ->where('is_default',1)
+                                ->where('id',$data['product_id'])
+                                ->whereHas('category',function ($q) use ($catList){
+                                    $q->whereIn('name',$catList);
+                                })
+                                ->exists();
+                            if ($exist){
+                                $leadProduct = new LeadProduct();
+                                $leadProduct->lead_id = $request->lead_id;
+                                $leadProduct->product_id = $data['product_id'];
+                                $leadProduct->combination = $fc;
+                                $leadProduct->quantity = @$data['quantity'] ?? 0;
+                                $leadProduct->type = "Material";
+                                $leadProduct->save();
+                            }
+                        }
+                    }
+                }
             }
             Lead::where('id', $request->lead_id)->update(['is_estimate' => 1]);
             \DB::commit();
@@ -117,8 +190,25 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-        $companyId = 0;
+        $validator = \Validator::make($request->all(),[
+            'combination'=>['nullable','string'],
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+
         $roofType = RoofType::where('lead_id', $leadId)->first();
+        $companyId = 0;
         if (empty($roofType)) {
             return response()->json([
                 'status' => false,
@@ -132,52 +222,124 @@ class LeadGenerateController extends Controller
             $company = $roofType->company_id;
         }
 
-        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity')->with(['item' => function ($q) use ($company) {
+        $comb1 = [];
+        $comb2 = [];
+        $finalComb = [];
+        if ($roofType->tile == 1){
+            $comb1[] = 'Tile';
+        }
+        if ($roofType->metal == 1){
+            $comb1[] = 'Metal';
+        }
+        if ($roofType->shingle == 1){
+            $comb1[] = 'Shingle';
+        }
+        if ($roofType->flat == 1){
+            $comb2[] = 'Flat';
+        }
+        if ($roofType->tpo == 1){
+            $comb2[] = 'Tpo';
+        }
+        if (!empty($comb1)){
+            foreach ($comb1 as $com){
+                if (!empty($comb2)){
+                    foreach ($comb2 as $com2){
+                        $finalComb[] = $com.'|'.$com2;
+                    }
+                }else{
+                    $finalComb[] = $com;
+                }
+            }
+        }else{
+            $finalComb = $comb2;
+        }
+
+        $category = [];
+        $combination = '';
+        if ($request->combination){
+            $category = explode('|',$request->combination);
+            $combination = $request->combination;
+        }else{
+            $category = explode('|',$finalComb[0]);
+            $combination = $finalComb[0];
+        }
+        $roofData = RoofData::where('lead_id', $leadId)
+            ->where('combination',$combination)
+            ->first();
+        $defaultProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
+            ->with(['item' => function ($q) use ($company) {
             $q->where('company_id', $company);
         }])
-            ->leftJoin('lead_products', function ($s) use ($leadId) {
+            ->leftJoin('lead_products', function ($s) use ($leadId,$combination) {
                 $s->on('lead_products.product_id', '=', 'products.id');
                 $s->where('lead_products.lead_id', $leadId);
+                $s->where('lead_products.combination', $combination);
             })
             ->whereHas('item', function ($q) use ($company) {
                 $q->where('company_id', $company);
+            })
+            ->whereHas('category',function ($q) use($combination){
+                $q->whereIn('name',explode('|',$combination));
             })
             ->where('products.is_default', 1)
             ->where('products.type', 'Material')
             ->groupBy('products.id')
             ->get();
 
-        $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.category')->with(['item' => function ($q) use ($company) {
-            $q->where('company_id', $company);
-        }])
-            ->leftJoin('lead_products', function ($s) use ($leadId) {
-                $s->on('lead_products.product_id', '=', 'products.id');
-                $s->where('lead_products.lead_id', $leadId);
-            })
-            ->whereHas('item', function ($q) use ($company) {
-                $q->where('company_id', $company);
-            })
-            ->where('products.is_default', 0)
-            ->where('products.type', 'Material')
-            ->groupBy('products.id')
-            ->get();
-        $otherProduct = LeadProduct::with(['products' => function ($s) use ($companyId) {
-            $s->with('item');
-            $s->whereHas('item');
-        }])
-            ->whereHas('products', function ($s) use ($companyId) {
-                $s->whereHas('item');
-            })
-            ->where('type', '!=', 'Material')
-            ->where('lead_id', $leadId)->get();
+        $material = [];
+        if ($category){
+            foreach ($category as $cs){
+                $materialProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')
+                    ->leftJoin('lead_products',function ($s) use($cs,$leadId,$combination){
+                        $s->on('lead_products.product_id','=','products.id');
+                        $s->where('lead_products.combination','=',$combination);
+                        $s->where('lead_products.category','=',$cs);
+                        $s->where('lead_products.lead_id', $leadId);
+                    })
+                    ->where('products.type','Material')
+                    ->with(['item'=>function($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    }])
+                    ->whereHas('item',function ($s) use($roofType){
+                        $s->where('company_id',$roofType->company_id);
+                    })
+                    ->with(['category'=>function($s) use($cs){
+                        $s->where('name',$cs);
+                    }])
+                    ->whereHas('category',function ($s) use($cs){
+                        $s->where('name',$cs);
+                    })
+                    ->where('products.is_default',0)
+                    ->groupBy('products.id')
+                    ->get();
+                if (!empty($materialProduct)){
+                    foreach ($materialProduct as $product){
+                        $material[] = $product;
+                    }
+                }
+            }
+        }
+
+        $otherProduct = Product::selectRaw('products.*,lead_products.quantity,lead_products.combination')->leftJoin('lead_products',function ($s) use($leadId,$combination){
+            $s->on('lead_products.product_id', '=', 'products.id');
+            $s->where('lead_products.lead_id', $leadId);
+            $s->where('lead_products.combination', $combination);
+        })
+        ->with('item')
+        ->whereHas('item')
+        ->where('products.type','!=','Material')
+        ->get();
         return response()->json([
             'status' => true,
             'message' => '',
             'data' => [
                 'lead' => $lead,
+                'combination'=>$finalComb,
+                'current_combination'=>$combination,
                 'roofType' => $roofType,
+                'roofData' => $roofData,
                 'defaultProduct' => $defaultProduct,
-                'materialProduct' => $materialProduct,
+                'materialProduct' => $material,
                 'otherProducts' => $otherProduct
             ]
         ]);
@@ -306,6 +468,7 @@ class LeadGenerateController extends Controller
         $validator = \Validator::make($request->all(), [
             'lead_id' => ['required', 'numeric', 'exists:\App\Models\Lead,id'],
             'company_id' => ['required', 'numeric', 'exists:\App\Models\Company,id'],
+            'combination' => ['required', 'string'],
             'material_product_data' => ['nullable', 'array'],
             'material_product_data.*.product_id' => ['required', 'numeric'],
             'material_product_data.*.quantity' => ['required', 'numeric'],
@@ -318,6 +481,17 @@ class LeadGenerateController extends Controller
             'seller_commission' => ['nullable', 'between:0,100'],
             'office_commission' => ['nullable', 'between:0,100'],
             'final_contract_price' => ['nullable', 'string'],
+            'labor_total' => ['nullable', 'between:0,999999999999'],
+            'trash_total' => ['nullable', 'between:0,999999999999'],
+            'permit_total' => ['nullable', 'between:0,999999999999'],
+            'supplies_total' => ['nullable', 'between:0,999999999999'],
+            'roof_snap' => ['required'],
+            'eagle_view' => ['nullable'],
+            'slope_1' => ['required', 'numeric', 'between:1,12'],
+            'slope_2' => ['required', 'numeric', 'in:0.5,1,1.5'],
+            'iso' => ['required', 'in:Yes,No'],
+            'deck_type' => ['required', 'exists:\App\Models\DeckType,id'],
+            'tax' => ['required', 'between:0,100'],
         ]);
         if ($validator->fails()) {
             $errors = "";
@@ -340,34 +514,63 @@ class LeadGenerateController extends Controller
                 'data' => null
             ]);
         }
-        $roofType = RoofType::where('lead_id', $lead->id)->first();
-        $roofType->miscellaneous = $request->miscellaneous;
-        $roofType->desire_profit = $request->company_id;
-        $roofType->seller_commission = $request->seller_commission;
-        $roofType->office_commission = $request->office_commission;
-        $roofType->final_contract_price = $request->final_contract_price;
+
+        $combination = $request->combination;
+        $roofType = RoofType::where('lead_id',$lead->id)->first();
         $roofType->company_id = $request->company_id;
+        $roofType->slope_1 = $request->slope_1;
+        $roofType->slope_2 = $request->slope_2;
+        $roofType->iso = $request->iso;
+        $roofType->deck_type = $request->deck_type;
+        $roofType->tax = $request->tax;
         $roofType->save();
+        $roofData = RoofData::where('lead_id', $lead->id)
+            ->where('combination',$combination)
+            ->first();
+        if (empty($roofData)){
+            $roofData = new RoofData();
+            $roofData->lead_id = $lead->id;
+            $roofData->combination = $combination;
+        }
+        $roofData->roof_snap = $request->roof_snap;
+        $roofData->eagle_view = $request->eagle_view;
+        $roofData->miscellaneous = $request->miscellaneous;
+        $roofData->desire_profit = $request->desire_profit;
+        $roofData->seller_commission = $request->seller_commission;
+        $roofData->office_commission = $request->office_commission;
+        $roofData->final_contract_price = $request->final_contract_price;
+        $roofData->labor_total = $request->labor_total ?? 0;
+        $roofData->trash_total = $request->trash_total ?? 0;
+        $roofData->permit_total = $request->permit_total ?? 0;
+        $roofData->supplies_total = $request->supplies_total ?? 0;
+        $roofData->save();
+        LeadProduct::where('lead_id', $lead->id)
+            ->where('combination',$combination)
+            ->where('type', 'Material')
+            ->delete();
         if (!empty($request->material_product_data)) {
-            LeadProduct::where('lead_id', $lead->id)->where('type', 'Material')->delete();
             foreach ($request->material_product_data as $data) {
                 LeadProduct::create([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'category' => @$data['category'] ?? null,
                     'type' => 'Material',
-                    'quantity' => $data['quantity']
+                    'quantity' => $data['quantity'],
+                    'combination' => $combination
                 ]);
             }
         }
+        LeadProduct::where('lead_id', $lead->id)
+            ->where('combination',$request->combination)
+            ->where('type', '!=', 'Material')->delete();
         if (!empty($request->other_product_data)) {
-            LeadProduct::where('lead_id', $lead->id)->where('type', '!=', 'Material')->delete();
             foreach ($request->other_product_data as $data) {
                 LeadProduct::create([
                     'lead_id' => $lead->id,
                     'product_id' => $data['product_id'],
                     'type' => $data['type'],
-                    'quantity' => $data['quantity']
+                    'quantity' => $data['quantity'],
+                    'combination' => $combination
                 ]);
             }
         }
@@ -423,8 +626,7 @@ class LeadGenerateController extends Controller
                         ->whereHas('item', function ($p) use ($companyId) {
                             $p->where('company_id', $companyId);
                         })
-                        ->where('id', $data['id'])
-                        ->where('type', 'Material')->first();
+                        ->where('id', $data['id'])->first();
                     $cost = (int)$data['quantity'] * (float)@$materialProduct->item->unit_price ?? 0;
                     $companyWise[$companyId] = $cost;
                 }
@@ -452,5 +654,41 @@ class LeadGenerateController extends Controller
             ]
         ]);
 
+    }
+
+    public function approvedCombination(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+            'lead_id' => ['required', 'numeric','exists:\App\Models\Lead,id'],
+            'combination' => ['required', 'string',]
+        ]);
+        if ($validator->fails()) {
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        $roofType = RoofType::where('lead_id',$request->lead_id)->first();
+        $roofType->approved_combination = $request->combination;
+        if ($roofType->save()){
+            return response()->json([
+                'status' => true,
+                'message' => 'Approved successful',
+                'data' => null
+            ]);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Not approved',
+                'data' => null
+            ]);
+        }
     }
 }

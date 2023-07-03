@@ -93,6 +93,7 @@ Route::middleware('auth:api')->group(function (){
             Route::post('delete-product/{id}','delete');
         });
         Route::get('get-default-product','getDefaultProduct');
+        Route::post('search-default-product','searchDefaultProduct');
         Route::get('get-product-own-category-list','productOwnCategory');
     });
     Route::controller(LeadGenerateController::class)->group(function (){
@@ -102,6 +103,7 @@ Route::middleware('auth:api')->group(function (){
        Route::post('add-lead-price','addLeadPrice');
        Route::post('edit-lead-details','editLeadDetails');
        Route::post('low-price-company','lowPriceCompany');
+       Route::post('approved-combination','approvedCombination');
     });
     Route::controller(CityController::class)->group(function (){
        Route::get('get-city-list','index');
@@ -142,5 +144,9 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(ClientReportController::class)->group(function (){
         Route::get('get-client-report','index');
         Route::post('add-update-client-report','addUpdate');
+        Route::get('get-supplier-list','getSupplierList');
+        Route::post('add-supplier','addSupplier');
+        Route::post('edit-supplier/{id}','editSupplier');
+        Route::post('delete-supplier/{id}','deleteSupplier');
     });
 });

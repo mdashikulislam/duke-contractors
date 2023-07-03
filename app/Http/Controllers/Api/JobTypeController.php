@@ -8,9 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 class JobTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $types = JobType::all();
+        $types = JobType::whereNotNull('name');
+        if ($request->search){
+            $types = $types->where('name','LIKE',"%$request->search%");
+        }
+        $types = $types->get();
         return response()->json([
             'status' => true,
             'message' => '',

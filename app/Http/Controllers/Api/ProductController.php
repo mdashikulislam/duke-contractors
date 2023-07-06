@@ -152,6 +152,8 @@ class ProductController extends Controller
                     $category->product_id = $product->id;
                     $category->name = $cat['name'];
                     $category->formula = @$cat['formula'];
+                    $category->low_slope = @$cat['low_slope'];
+                    $category->steep_slope = @$cat['steep_slope'];
                     $category->save();
                 }
             }
@@ -411,6 +413,8 @@ class ProductController extends Controller
                     $category->product_id = $product->id;
                     $category->name = $cat['name'];
                     $category->formula = @$cat['formula'];
+                    $category->low_slope = @$cat['low_slope'];
+                    $category->steep_slope = @$cat['steep_slope'];
                     $category->save();
                 }
             }

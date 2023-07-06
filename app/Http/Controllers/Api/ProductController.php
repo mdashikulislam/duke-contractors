@@ -128,6 +128,8 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = $request->name;
             $product->type = $request->type;
+            $product->low_slope = @$request->low_slope;
+            $product->steep_slope = @$request->steep_slope;
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
@@ -152,8 +154,6 @@ class ProductController extends Controller
                     $category->product_id = $product->id;
                     $category->name = $cat['name'];
                     $category->formula = @$cat['formula'];
-                    $category->low_slope = @$cat['low_slope'];
-                    $category->steep_slope = @$cat['steep_slope'];
                     $category->save();
                 }
             }
@@ -388,6 +388,8 @@ class ProductController extends Controller
         try {
             $product->name = $request->name;
             $product->type = $request->type;
+            $product->low_slope = @$request->low_slope;
+            $product->steep_slope = @$request->steep_slope;
             if ($request->type == 'Material'){
                 $product->is_default = $request->is_default ?? 0;
                 $product->wood_type = $request->wood_type ?? 'None';
@@ -413,8 +415,6 @@ class ProductController extends Controller
                     $category->product_id = $product->id;
                     $category->name = $cat['name'];
                     $category->formula = @$cat['formula'];
-                    $category->low_slope = @$cat['low_slope'];
-                    $category->steep_slope = @$cat['steep_slope'];
                     $category->save();
                 }
             }

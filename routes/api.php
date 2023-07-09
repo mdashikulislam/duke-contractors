@@ -31,7 +31,7 @@ use \App\Http\Controllers\Api\ClientReportController;
 |
 */
 
-
+Route::get('test',[\App\Http\Controllers\TestController::class,'index']);
 Route::middleware('guest')->group(function (){
     Route::controller(AuthController::class)->group(function (){
         Route::post('login','login');

@@ -7,6 +7,7 @@ use App\Models\JobType;
 use App\Models\Lead;
 use App\Models\RoofType;
 use Illuminate\Http\Request;
+use Spatie\GoogleCalendar\Event;
 
 class LeadControllerController extends Controller
 {
@@ -90,24 +91,45 @@ class LeadControllerController extends Controller
                 continue;
             }
         }
-        $lead = new Lead();
-        $lead->user_id = getAuthInfo()->id;
-        $lead->customer_name = $request->customer_name;
-        $lead->city_for_permit = $request->city_for_permit;
-        $lead->seller_id = $request->seller_id;
-        $lead->address = $request->address;
-        $lead->phone = $request->phone;
-        $lead->email = $request->email;
-        $lead->additional_comments = $request->additional_comments;
-        $lead->price_of_quote = 0;
-        $lead->status = 'Not Sent';
-        $lead->save();
-        $lead->jobTypes()->sync($jobType);
-        return response()->json([
-           'status'=>true,
-           'message'=>'Lead added successful',
-           'data'=>null
-        ]);
+        \DB::beginTransaction();
+        try {
+            $lead = new Lead();
+            $lead->user_id = getAuthInfo()->id;
+            $lead->customer_name = $request->customer_name;
+            $lead->city_for_permit = $request->city_for_permit;
+            $lead->seller_id = $request->seller_id;
+            $lead->address = $request->address;
+            $lead->phone = $request->phone;
+            $lead->email = $request->email;
+            $lead->additional_comments = $request->additional_comments;
+            $lead->price_of_quote = 0;
+            $lead->status = 'Not Sent';
+            $lead->save();
+            $lead->jobTypes()->sync($jobType);
+            $description = 'Seller:'.$lead->sellers->name.'\n Customer Name:'.$lead->customer_name.'\n Phone:'.$lead->phone.
+            '\n Email:'.$lead->email;
+            $event = new Event;
+            $event->name = 'New Lead '.$lead->id;
+            $event->description = $description;
+            $event->startDateTime = \Carbon\Carbon::now();
+            $event->endDateTime = \Carbon\Carbon::now()->addHour();
+            $event->save();
+            \DB::commit();
+
+            return response()->json([
+                'status'=>true,
+                'message'=>'Lead added successful',
+                'data'=>null
+            ]);
+        }catch (\Exception $exception){
+            \DB::rollBack();
+            return response()->json([
+                'status'=>false,
+                'message'=>$exception->getMessage(),
+                'data'=>null
+            ]);
+        }
+
     }
 
     public function editLead($id,Request $request)

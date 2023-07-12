@@ -115,8 +115,8 @@ class LeadControllerController extends Controller
             $event = new Event;
             $event->name = 'New Lead '.$lead->id;
             $event->description = $description;
-            $event->startDateTime = Carbon::parse($request->appointment)->format('Y-m-d H:i:s');
-            $event->endDateTime = Carbon::parse($request->appointment)->addHour()->format('Y-m-d H:i:s');
+            $event->startDateTime = Carbon::parse($request->appointment)->format('Y-m-d H:i:s T');
+            $event->endDateTime = Carbon::parse($request->appointment)->addHour()->format('Y-m-d H:i:s T');
             $event->save();
             \DB::commit();
 

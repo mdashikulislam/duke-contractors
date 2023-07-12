@@ -105,6 +105,7 @@ class LeadControllerController extends Controller
             $lead->email = $request->email;
             $lead->additional_comments = $request->additional_comments;
             $lead->price_of_quote = 0;
+            $lead->appointment = $request->appointment;
             $lead->status = 'Not Sent';
             $lead->save();
             $lead->jobTypes()->sync($jobType);

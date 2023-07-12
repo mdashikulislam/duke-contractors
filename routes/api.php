@@ -21,6 +21,7 @@ use \App\Http\Controllers\Api\InspectionResultController;
 use \App\Http\Controllers\Api\OtherController;
 use \App\Http\Controllers\Api\ClientReportController;
 use \App\Http\Controllers\Api\SettingController;
+use \App\Http\Controllers\Api\DocController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -153,4 +154,6 @@ Route::middleware('auth:api')->group(function (){
     Route::controller(SettingController::class)->group(function (){
         Route::post('setting-update','update');
     });
+
 });
+Route::get('download-doc',[DocController::class,'index']);

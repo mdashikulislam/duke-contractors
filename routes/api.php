@@ -20,6 +20,7 @@ use \App\Http\Controllers\Api\CustomerPaymentController;
 use \App\Http\Controllers\Api\InspectionResultController;
 use \App\Http\Controllers\Api\OtherController;
 use \App\Http\Controllers\Api\ClientReportController;
+use \App\Http\Controllers\Api\SettingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -148,5 +149,8 @@ Route::middleware('auth:api')->group(function (){
         Route::post('add-supplier','addSupplier');
         Route::post('edit-supplier/{id}','editSupplier');
         Route::post('delete-supplier/{id}','deleteSupplier');
+    });
+    Route::controller(SettingController::class)->group(function (){
+        Route::post('setting-update','update');
     });
 });

@@ -8,11 +8,13 @@ class TestController extends Controller
 {
     public function index()
     {
+
         $event = new Event;
         $event->name = 'A new event';
-        $event->description = 'Event description';
+        $event->description = 'Event description'.'<br>'.'sdgdsg';
         $event->startDateTime = \Carbon\Carbon::now();
         $event->endDateTime = \Carbon\Carbon::now()->addHour();
         $event->save();
+        return Event::get();
     }
 }

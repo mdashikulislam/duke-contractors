@@ -106,8 +106,10 @@ class LeadControllerController extends Controller
             $lead->status = 'Not Sent';
             $lead->save();
             $lead->jobTypes()->sync($jobType);
-            $description = 'Seller:'.$lead->sellers->name.'\n Customer Name:'.$lead->customer_name.'\n Phone:'.$lead->phone.
-            '\n Email:'.$lead->email;
+            $description = 'Seller:'.@$lead->sellers->name.'
+             Customer Name:'.@$lead->customer_name.'
+             Phone:'.@$lead->phone. '
+              Email:'.@$lead->email;
             $event = new Event;
             $event->name = 'New Lead '.$lead->id;
             $event->description = $description;

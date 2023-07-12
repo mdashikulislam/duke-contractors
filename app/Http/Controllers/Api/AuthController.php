@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -142,7 +143,8 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'email_verified_at' => $user->email_verified_at,
-                    'role'=>$user->role
+                    'role'=>$user->role,
+                    'setting'=>Setting::first()
                 ]
             ]
         ];

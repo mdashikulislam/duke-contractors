@@ -9,7 +9,7 @@ class TestController extends Controller
 {
     public function index()
     {
-        return Carbon::now();
+        return Carbon::now()->format('');
         $event = new Event;
         $event->name = 'A new event';
         $event->description = 'Event description'.'<br>'.'sdgdsg';

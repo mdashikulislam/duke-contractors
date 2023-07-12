@@ -62,8 +62,7 @@ class LeadControllerController extends Controller
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
             'job_type'=>['required','array'],
-            'city_for_permit'=>['required','exists:\App\Models\City,id'],
-            'appointment'=>['required','date_format:Y-m-d H:i:s']
+            'city_for_permit'=>['required','exists:\App\Models\City,id']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -105,7 +104,7 @@ class LeadControllerController extends Controller
             $lead->email = $request->email;
             $lead->additional_comments = $request->additional_comments;
             $lead->price_of_quote = 0;
-            $lead->appointment = $request->appointment;
+            $lead->appointment = Carbon::parse($request->appointment)->format('Y-m-d H:i:s');
             $lead->status = 'Not Sent';
             $lead->save();
             $lead->jobTypes()->sync($jobType);
@@ -159,6 +158,7 @@ class LeadControllerController extends Controller
             'status'=>['required'],
             'estimate_date'=>['nullable','date_format:Y-m-d'],
             'job_completed_date'=>['nullable','date_format:Y-m-d'],
+            'appointment'=>['required']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -181,6 +181,7 @@ class LeadControllerController extends Controller
         $lead->phone = $request->phone;
         $lead->email = $request->email;
         $lead->status = $request->status;
+        $lead->appointment = Carbon::parse($request->appointment)->format('Y-m-d H:i:s');
         $lead->additional_comments = $request->additional_comments;
         $lead->job_completed_date = $request->job_completed_date ?? null;
         $lead->estimate_date = $request->estimate_date ?? null;

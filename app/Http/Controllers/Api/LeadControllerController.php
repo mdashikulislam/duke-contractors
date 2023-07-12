@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobType;
 use App\Models\Lead;
 use App\Models\RoofType;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Spatie\GoogleCalendar\Event;
 
@@ -61,7 +62,8 @@ class LeadControllerController extends Controller
             'email'=>['required','max:191'],
             'additional_comments'=>['nullable','max:191'],
             'job_type'=>['required','array'],
-            'city_for_permit'=>['required','exists:\App\Models\City,id']
+            'city_for_permit'=>['required','exists:\App\Models\City,id'],
+            'appointment'=>['required','date_format:Y-m-d H:i:s']
         ]);
         if ($validator->fails()){
             $errors = "";
@@ -113,8 +115,8 @@ class LeadControllerController extends Controller
             $event = new Event;
             $event->name = 'New Lead '.$lead->id;
             $event->description = $description;
-            $event->startDateTime = \Carbon\Carbon::now();
-            $event->endDateTime = \Carbon\Carbon::now()->addHour();
+            $event->startDateTime = Carbon::parse($request->appointment)->format('Y-m-d H:i:s');
+            $event->endDateTime = Carbon::parse($request->appointment)->addHour()->format('Y-m-d H:i:s');
             $event->save();
             \DB::commit();
 

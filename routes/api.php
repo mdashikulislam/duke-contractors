@@ -96,6 +96,7 @@ Route::middleware('auth:api')->group(function (){
         });
         Route::get('get-default-product','getDefaultProduct');
         Route::post('search-default-product','searchDefaultProduct');
+        Route::post('search-product-list','searchProductList');
         Route::get('get-product-own-category-list','productOwnCategory');
     });
     Route::controller(LeadGenerateController::class)->group(function (){

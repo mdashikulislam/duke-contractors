@@ -549,6 +549,50 @@ class ProductController extends Controller
         ]);
     }
 
+    public function searchProductList(Request $request)
+    {
+        $validator = \Validator::make($request->all(),[
+            'company_id'=>['nullable','numeric','exists:\App\Models\Company,id'],
+            'category'=>['required','array'],
+            'keyword'=>['nullable','string']
+        ]);
+        if ($validator->fails()){
+            $errors = "";
+            $e = $validator->errors()->all();
+            foreach ($e as $error) {
+                $errors .= $error . "\n";
+            }
+            $response = [
+                'status' => false,
+                'message' => $errors,
+                'data' => null
+            ];
+            return response()->json($response);
+        }
+        if ($request->company_id){
+            $company = $request->company_id;
+        }else{
+            $company = Company::where('is_default',1)->first()->id;
+        }
+
+        $category = $request->category;
+        $product = Product::where('is_default',0)
+            ->whereHas('category',function ($q) use($category){
+                $q->whereIn('name',$category);
+            });
+        if ($request->keyword){
+            $product = $product->where('name','LIKE',"%$request->keyword%");
+        }
+        $product =$product ->where('type','Material')
+            ->get();
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => [
+                'products'=>$product
+            ]
+        ]);
+    }
     public function searchDefaultProduct(Request $request)
     {
         $validator = \Validator::make($request->all(),[

@@ -112,6 +112,27 @@ class LeadControllerController extends Controller
              Customer Name:'.@$lead->customer_name.'
              Phone:'.@$lead->phone. '
               Email:'.@$lead->email;
+
+
+//            $client = new \Google_Client();
+//            $client->setApplicationName('Calender');
+//            $client->setScopes(\Google_Service_Calendar::CALENDAR);
+//            $client->setAuthConfig(storage_path('app/google-calendar/service-account-credentials.json'));
+//            $client->setAccessType('offline');
+//            $client->getAccessToken();
+//            $client->getRefreshToken();
+//
+//            $service = new \Google_Service_Calendar($client);
+//            $event = new \Google_Service_Calendar_Event([
+//                'summery'=>'testing',
+//                'location'=>'location',
+//                'description'=>'asafasg',
+//                'start' => [
+//                    'dateTime'=>Carbon::now(),
+//                    'timeZone'=>'America/Los'
+//                ]
+//            ]);
+
             $event = new Event;
             $event->name = 'New Lead '.$lead->id;
             $event->description = $description;

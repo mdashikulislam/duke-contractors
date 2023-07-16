@@ -157,4 +157,4 @@ Route::middleware('auth:api')->group(function (){
     });
 
 });
-Route::get('download-doc',[DocController::class,'index']);
+Route::get('download-doc/{id}',[DocController::class,'index']);

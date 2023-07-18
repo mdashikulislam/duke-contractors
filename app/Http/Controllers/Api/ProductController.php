@@ -97,7 +97,7 @@ class ProductController extends Controller
             'name'=>['required','max:255','string'],
             'type'=>['required','max:255','in:'.implode(',',PRODUCT_TYPE)],
             'product_data'=>['required','array'],
-            'product_data.*.unit_price'=>['required','numeric','min:1'],
+            'product_data.*.unit_price'=>['nullable','numeric'],
             'formula'=>['nullable','string'],
             'dim_covers'=>['nullable','numeric'],
         ];
@@ -145,7 +145,7 @@ class ProductController extends Controller
                 }else{
                     $companyProduct->company_id =  0;
                 }
-                $companyProduct->unit_price = $data['unit_price'];
+                $companyProduct->unit_price = @$data['unit_price'] ?? 0;
                 $companyProduct->save();
             }
             if ($request->type == 'Material'){
@@ -405,7 +405,7 @@ class ProductController extends Controller
                 }else{
                     $companyProduct->company_id =  0;
                 }
-                $companyProduct->unit_price = $data['unit_price'];
+                $companyProduct->unit_price = @$data['unit_price'] ?? 0;
                 $companyProduct->save();
             }
             if ($request->type =='Material') {
